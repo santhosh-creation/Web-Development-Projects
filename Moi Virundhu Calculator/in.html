@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Moi Virundhu Calculator</title>
+  <meta name="description" content="Modern digital ledger for Moi Virundhu (மொய் விருந்து) — add guests, track contributions, calculate return amounts with interest, and plan budgets." />
+  <style>
+    :root{
+      --bg: #fffaf2;           /* ivory */
+      --text: #2b1a16;         /* deep brown */
+      --muted: #7b625a;        /* soft brown */
+      --card: #fffdf8;         /* light card */
+      --line: #eadcc7;         /* light line */
+      --primary: #7b1c1c;      /* maroon */
+      --accent: #d4af37;       /* gold */
+      --accent-2: #f4e5b5;     /* pale gold */
+      --danger: #b43b3b;       /* red */
+      --ok: #1b8f5a;           /* green */
+      --focus: #e6c94a;        /* gold focus */
+      --shadow: 0 8px 24px rgba(123,28,28,0.09);
+    }
+    [data-theme="dark"]{
+      --bg: #1a1411;
+      --text: #f6efe6;
+      --muted: #c7b8ac;
+      --card: #231916;
+      --line: #3a2c25;
+      --primary: #e1c2c2;
+      --accent: #e0c14a;
+      --accent-2: #3a2c12;
+      --danger: #ff6b6b;
+      --ok: #61d39c;
+      --focus: #f0d869;
+      --shadow: 0 10px 28px rgba(0,0,0,0.35);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family: "Noto Sans Tamil", "Latha", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    a{ color: var(--primary); text-decoration: none; }
+    header{
+      position:sticky; top:0; z-index:50;
+      background: linear-gradient(180deg, rgba(212,175,55,0.15), transparent), var(--bg);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 16px; }
+    .topbar{ display:flex; align-items:center; gap:12px; justify-content:space-between; }
+    .brand{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:40px; height:40px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, var(--accent), #f5e3a6 60%, transparent 61%), var(--accent-2);
+      border: 2px solid var(--accent);
+      box-shadow: inset 0 0 0 2px rgba(212,175,55,0.25);
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+    }
+    h1{ font-size:18px; margin:0; line-height:1.2; }
+    .tagline{ color: var(--muted); font-size:12px; }
+
+    .controls{ display:flex; align-items:center; gap:8px; }
+    .seg{
+      display:inline-flex; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card);
+    }
+    .seg button{
+      padding:8px 10px; font-size:13px; background:transparent; color:var(--text); border:0; cursor:pointer; min-width:40px;
+    }
+    .seg button.active{ background: var(--accent-2); color: var(--text); font-weight:600; }
+    .icon-btn{
+      border:1px solid var(--line); background:var(--card); border-radius:12px; padding:8px 10px; cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px; color:var(--text);
+    }
+    .icon-btn .dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow: 0 0 0 2px rgba(212,175,55,0.25); }
+    .row{ display:flex; flex-wrap:wrap; gap:16px; }
+    nav.tabs{
+      position: sticky; top:60px; z-index: 40; background: var(--bg); border-bottom:1px solid var(--line);
+    }
+    .tabs .tablist{ display:flex; gap:8px; overflow:auto; padding:10px 16px; }
+    .tabs .tab{
+      white-space:nowrap; padding:10px 14px; border-radius:12px;
+      border:1px solid var(--line); background: var(--card); color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    .tabs .tab.active{ outline:2px solid var(--accent); }
+    main{ padding: 16px; }
+    section{ display:none; }
+    section.active{ display:block; }
+    .card{
+      background: var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow: var(--shadow);
+    }
+    h2{ font-size:16px; margin:0 0 10px 0; display:flex; align-items:center; gap:8px; }
+    .sub{ color:var(--muted); font-size:12px; margin-bottom:12px; }
+
+    .grid{ display:grid; gap:10px; }
+    .grid.cols-2{ grid-template-columns: 1fr 1fr; }
+    .grid.cols-3{ grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 720px){
+      .grid.cols-2, .grid.cols-3{ grid-template-columns: 1fr; }
+    }
+
+    label{ font-size:12px; color: var(--muted); display:block; margin:6px 0; }
+    input[type="text"], input[type="number"], input[type="date"], textarea, select{
+      width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background: var(--bg); color: var(--text);
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(224,193,74,0.25); }
+    textarea{ min-height:86px; }
+
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border-radius:12px; border:1px solid var(--line); background: var(--primary); color:white; cursor:pointer;
+    }
+    .btn.ghost{ background: transparent; color: var(--text); }
+    .btn.gold{ background: var(--accent); color: #4b3a1a; border-color: rgba(0,0,0,0); }
+    .btn.danger{ background: var(--danger); color: #fff; }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; }
+    .btn-row{ display:flex; flex-wrap:wrap; gap:10px; }
+
+    .statbar{ display:flex; gap:10px; flex-wrap:wrap; }
+    .stat{ flex:1 1 160px; background:linear-gradient(180deg, rgba(212,175,55,0.12), transparent), var(--card);
+      border:1px solid var(--line); border-radius:14px; padding:12px; }
+    .stat h3{ margin:0; font-size:13px; color: var(--muted); }
+    .stat .val{ font-size:18px; font-weight:700; margin-top:4px; }
+
+    table{ width:100%; border-collapse: collapse; }
+    thead th{ position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line); padding:10px; text-align:left; font-size:12px; color:var(--muted); }
+    tbody td{ border-bottom:1px solid var(--line); padding:10px; font-size:14px; }
+    tbody tr:hover{ background: rgba(212,175,55,0.07); }
+    .amount{ font-feature-settings:"tnum"; font-variant-numeric: tabular-nums; }
+
+    .progress{
+      height:10px; background: #e9dcc1; border-radius:999px; overflow:hidden; border:1px solid var(--line);
+    }
+    .progress > span{ display:block; height:100%; background: linear-gradient(90deg, var(--accent), #f0d869); width:0%; transition: width .3s; }
+
+    .pill{
+      padding:4px 8px; border-radius:999px; border:1px solid var(--line); background: var(--bg); font-size:12px;
+    }
+    .hint{ font-size:12px; color:var(--muted); }
+
+    footer{
+      margin-top: 28px; border-top:1px solid var(--line); background: var(--bg);
+    }
+
+    /* Print only the ledger section for PDF export */
+    @media print{
+      body *{ visibility:hidden !important; }
+      #ledger-section, #ledger-section *{ visibility:visible !important; }
+      #ledger-section{ position:absolute; left:0; top:0; width:100%; padding: 16px; }
+      .no-print{ display:none !important; }
+      header, nav, footer{ display:none !important; }
+      .btn, .icon-btn{ display:none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🪔</div>
+        <div>
+          <h1 id="appTitle" data-i18n="app.title">Moi Virundhu Calculator</h1>
+          <div class="tagline" id="appTagline" data-i18n="app.tagline">Tradition meets modern care – honor giving, simplify tracking.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Language">
+          <button id="langEN" class="active" data-lang="en">EN</button>
+          <button id="langTA" data-lang="ta">தமிழ்</button>
+        </div>
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="themeLabel" data-i18n="app.lightMode">Light</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tablist wrap">
+      <button class="tab active" data-tab="ledger" id="tab-ledger" data-i18n="tabs.ledger">Ledger</button>
+      <button class="tab" data-tab="add" id="tab-add" data-i18n="tabs.add">Add Entry</button>
+      <button class="tab" data-tab="return" id="tab-return" data-i18n="tabs.return">Return Calculator</button>
+      <button class="tab" data-tab="budget" id="tab-budget" data-i18n="tabs.budget">Budget Helper</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <!-- Ledger Section -->
+    <section id="ledger-section" class="active">
+      <div class="card">
+        <h2>📜 <span data-i18n="sections.ledgerTitle">Ledger</span></h2>
+        <div class="sub" data-i18n="sections.ledgerSub">Track every guest and their Moi contribution.</div>
+
+        <div class="statbar">
+          <div class="stat">
+            <h3 data-i18n="stats.totalMoi">Total Moi</h3>
+            <div class="val amount" id="statTotal">₹0</div>
+          </div>
+          <div class="stat">
+            <h3 data-i18n="stats.guests">Guests</h3>
+            <div class="val" id="statGuests">0</div>
+          </div>
+          <div class="stat">
+            <h3 data-i18n="stats.avg">Avg per guest</h3>
+            <div class="val amount" id="statAvg">₹0</div>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn gold" id="btnExportPDF">🖨️ <span data-i18n="actions.exportPDF">Export Ledger to PDF</span></button>
+          <button class="btn ghost" id="btnExportCSV">📄 <span data-i18n="actions.exportCSV">Export CSV</span></button>
+          <button class="btn danger" id="btnClearAll">🗑️ <span data-i18n="actions.clearAll">Clear Ledger</span></button>
+        </div>
+
+        <div style="margin-top:12px; overflow:auto">
+          <table id="ledgerTable" aria-describedby="appTitle">
+            <thead>
+              <tr>
+                <th data-i18n="table.date">Date</th>
+                <th data-i18n="table.name">Guest</th>
+                <th data-i18n="table.amount">Amount</th>
+                <th data-i18n="table.note">Note</th>
+                <th class="no-print" data-i18n="table.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerBody"></tbody>
+          </table>
+        </div>
+
+        <div class="hint" style="margin-top:10px" data-i18n="hints.localOnly">Your data is saved locally on this device (LocalStorage).</div>
+      </div>
+    </section>
+
+    <!-- Add Entry -->
+    <section id="add-section">
+      <div class="card">
+        <h2>🍛 <span data-i18n="sections.addTitle">Add Guest & Moi</span></h2>
+        <div class="sub" data-i18n="sections.addSub">Record a contribution in the ledger.</div>
+        <form id="entryForm">
+          <div class="grid cols-2">
+            <div>
+              <label data-i18n="form.name">Guest Name</label>
+              <input type="text" id="guestName" required placeholder="e.g., Arul" data-i18n-placeholder="placeholders.name" />
+            </div>
+            <div>
+              <label data-i18n="form.amount">Amount (₹)</label>
+              <input type="number" id="amount" min="0" step="1" required placeholder="e.g., 1000" data-i18n-placeholder="placeholders.amount" />
+            </div>
+            <div>
+              <label data-i18n="form.date">Date</label>
+              <input type="date" id="date" required />
+            </div>
+            <div>
+              <label data-i18n="form.note">Note</label>
+              <input type="text" id="note" placeholder="Optional" data-i18n-placeholder="placeholders.note" />
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn" type="submit">➕ <span data-i18n="actions.addEntry">Add Entry</span></button>
+            <button class="btn ghost" type="reset">↺ <span data-i18n="actions.reset">Reset</span></button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Return Calculator -->
+    <section id="return-section">
+      <div class="card">
+        <h2>🔁 <span data-i18n="sections.returnTitle">Return Calculator</span></h2>
+        <div class="sub" data-i18n="sections.returnSub">Compute how much to return later, with or without interest.</div>
+
+        <div class="grid cols-3">
+          <div>
+            <label data-i18n="return.mode">Interest Mode</label>
+            <select id="interestMode">
+              <option value="none" data-i18n="return.none">No Interest</option>
+              <option value="simple" data-i18n="return.simple">Simple Interest (per year)</option>
+            </select>
+          </div>
+          <div>
+            <label data-i18n="return.rate">Interest Rate (% / year)</label>
+            <input type="number" id="interestRate" min="0" step="0.1" value="0" />
+          </div>
+          <div>
+            <label data-i18n="return.date">Return Date</label>
+            <input type="date" id="returnDate" />
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:12px">
+          <span class="pill"><span data-i18n="return.info">Uses simple interest: P × r × (days/365)</span></span>
+        </div>
+
+        <div style="margin-top:12px; overflow:auto">
+          <table id="returnTable">
+            <thead>
+              <tr>
+                <th data-i18n="table.date">Date</th>
+                <th data-i18n="table.name">Guest</th>
+                <th data-i18n="table.principal">Principal</th>
+                <th data-i18n="table.days">Days</th>
+                <th data-i18n="table.interest">Interest</th>
+                <th data-i18n="table.returnAmt">Return Amount</th>
+              </tr>
+            </thead>
+            <tbody id="returnBody"></tbody>
+            <tfoot>
+              <tr>
+                <th colspan="2" data-i18n="table.totals">Totals</th>
+                <th class="amount" id="totPrincipal">₹0</th>
+                <th id="totDays">–</th>
+                <th class="amount" id="totInterest">₹0</th>
+                <th class="amount" id="totReturn">₹0</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Budget Helper -->
+    <section id="budget-section">
+      <div class="card">
+        <h2>🎉 <span data-i18n="sections.budgetTitle">Event Budget Helper</span></h2>
+        <div class="sub" data-i18n="sections.budgetSub">Compare feast cost vs. total Moi collected.</div>
+
+        <div class="grid cols-3">
+          <div>
+            <label data-i18n="budget.cost">Feast Cost</label>
+            <input type="number" id="feastCost" min="0" step="1" placeholder="e.g., 50000" data-i18n-placeholder="placeholders.cost" />
+          </div>
+          <div>
+            <label data-i18n="budget.collected">Collected</label>
+            <div class="pill amount" id="budgetCollected">₹0</div>
+          </div>
+          <div>
+            <label data-i18n="budget.net">Net (Surplus / Shortfall)</label>
+            <div class="pill amount" id="budgetNet">₹0</div>
+          </div>
+        </div>
+
+        <div class="progress" style="margin:12px 0;">
+          <span id="budgetProgress" style="width:0%"></span>
+        </div>
+
+        <div class="hint" id="budgetHint">—</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap" style="padding:14px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div class="hint" data-i18n="footer.note">Respectfully modernizing Moi Virundhu for community care.</div>
+      <div><strong>Developed by SanStudio</strong></div>
+    </div>
+  </footer>
+
+  <script>
+    // =========================
+    // I18N
+    // =========================
+    const i18n = {
+      en: {
+        app: {
+          title: "Moi Virundhu Calculator",
+          tagline: "Tradition meets modern care – honor giving, simplify tracking.",
+          lightMode: "Light",
+          darkMode: "Dark"
+        },
+        tabs: { ledger: "Ledger", add: "Add Entry", return: "Return Calculator", budget: "Budget Helper" },
+        sections: {
+          ledgerTitle: "Ledger",
+          ledgerSub: "Track every guest and their Moi contribution.",
+          addTitle: "Add Guest & Moi",
+          addSub: "Record a contribution in the ledger.",
+          returnTitle: "Return Calculator",
+          returnSub: "Compute how much to return later, with or without interest.",
+          budgetTitle: "Event Budget Helper",
+          budgetSub: "Compare feast cost vs. total Moi collected."
+        },
+        stats: { totalMoi: "Total Moi", guests: "Guests", avg: "Avg per guest" },
+        table: {
+          date: "Date", name: "Guest", amount: "Amount", note: "Note", actions: "Actions",
+          principal: "Principal", days: "Days", interest: "Interest", returnAmt: "Return Amount",
+          totals: "Totals"
+        },
+        form: { name: "Guest Name", amount: "Amount (₹)", date: "Date", note: "Note" },
+        return: {
+          mode: "Interest Mode",
+          none: "No Interest",
+          simple: "Simple Interest (per year)",
+          rate: "Interest Rate (% / year)",
+          date: "Return Date",
+          info: "Uses simple interest: P × r × (days/365)"
+        },
+        budget: { cost: "Feast Cost", collected: "Collected", net: "Net (Surplus / Shortfall)" },
+        actions: {
+          addEntry: "Add Entry",
+          reset: "Reset",
+          exportPDF: "Export Ledger to PDF",
+          exportCSV: "Export CSV",
+          clearAll: "Clear Ledger",
+          delete: "Delete"
+        },
+        hints: {
+          localOnly: "Your data is saved locally on this device (LocalStorage).",
+          surplus: "Surplus 🎉 Great! You’re above your feast cost.",
+          shortfall: "Shortfall 💡 Consider inviting support or adjusting costs."
+        },
+        placeholders: {
+          name: "e.g., Arul",
+          amount: "e.g., 1000",
+          note: "Optional",
+          cost: "e.g., 50000"
+        },
+        confirm: {
+          clear: "Clear all entries? This cannot be undone.",
+          delete: "Remove this entry?"
+        }
+      },
+      ta: {
+        app: {
+          title: "மொய் விருந்து கணிப்பான்",
+          tagline: "பாரம்பரியம் புதுமையுடன் — கொடுப்பை மதித்து, கணக்கை எளிதாக்கலாம்.",
+          lightMode: "ஒளி",
+          darkMode: "இருள்"
+        },
+        tabs: { ledger: "பதிவேடு", add: "புதிய பதிவு", return: "திருப்பு கணிப்பு", budget: "விழா பட்ஜெட்" },
+        sections: {
+          ledgerTitle: "பதிவேடு",
+          ledgerSub: "ஒவ்வொரு விருந்தினரும் அளித்த மொய் — அனைத்தையும் பதிவுசெய்யுங்கள்.",
+          addTitle: "விருந்தினர் & மொய் சேர்",
+          addSub: "புதிய மொய் பதிவை சேர்க்கவும்.",
+          returnTitle: "திருப்புமொய் கணிப்பான்",
+          returnSub: "வட்டி உடன்/இல்லாமல் திருப்ப வேண்டிய தொகையை கணக்கிடுங்கள்.",
+          budgetTitle: "விழா பட்ஜெட் உதவி",
+          budgetSub: "விழா செலவு மற்றும் மொத்த மொய் — ஒப்பிடுக."
+        },
+        stats: { totalMoi: "மொத்த மொய்", guests: "விருந்தினர்கள்", avg: "ஒருவருக்கு சராசரி" },
+        table: {
+          date: "தேதி", name: "விருந்தினர்", amount: "தொகை", note: "குறிப்பு", actions: "நடவடிக்கை",
+          principal: "முதற்கூறு", days: "நாட்கள்", interest: "வட்டி", returnAmt: "திருப்புமொய்",
+          totals: "மொத்தம்"
+        },
+        form: { name: "பெயர்", amount: "தொகை (₹)", date: "தேதி", note: "குறிப்பு" },
+        return: {
+          mode: "வட்டி முறை",
+          none: "வட்டி இல்லை",
+          simple: "எளிய வட்டி (வருடத்திற்கு)",
+          rate: "வட்டி விகிதம் (% / வருடம்)",
+          date: "திருப்பும் தேதி",
+          info: "எளிய வட்டி: P × r × (நாட்கள்/365)"
+        },
+        budget: { cost: "விழா செலவு", collected: "சேகரிப்பு", net: "நிகர (அதிகம் / குறைவு)" },
+        actions: {
+          addEntry: "பதிவை சேர்",
+          reset: "மைத்தல்",
+          exportPDF: "பதிவேட்டை PDF ஆக ஏற்று",
+          exportCSV: "CSV ஏற்று",
+          clearAll: "பதிவேடு காலி",
+          delete: "அகற்று"
+        },
+        hints: {
+          localOnly: "உங்கள் தரவு இந்த சாதனத்திலேயே (LocalStorage) சேமிக்கப்பட்டது.",
+          surplus: "அதிகம் 🎉 அருமை! விழா செலவை மீறியுள்ளீர்கள்.",
+          shortfall: "குறைவு 💡 ஆதரவைக் கேட்கவோ செலவை சரிசெய்யவோ பரிந்துரை."
+        },
+        placeholders: {
+          name: "உ.தா., அருள்",
+          amount: "உ.தா., 1000",
+          note: "விருப்பமானது",
+          cost: "உ.தா., 50000"
+        },
+        confirm: {
+          clear: "அனைத்து பதிவுகளையும் நீக்கவா? இது மீட்க முடியாது.",
+          delete: "இந்த பதிவை அகற்றவா?"
+        }
+      }
+    };
+
+    // =========================
+    // State & Storage
+    // =========================
+    const storeKeys = {
+      entries: "moi_entries_v1",
+      settings: "moi_settings_v1"
+    };
+
+    const state = {
+      entries: [],
+      settings: {
+        lang: "en",
+        theme: "light",
+        feastCost: 0,
+        interestMode: "none",
+        interestRate: 0,
+        returnDate: todayStr()
+      }
+    };
+
+    function saveState(){
+      localStorage.setItem(storeKeys.entries, JSON.stringify(state.entries));
+      localStorage.setItem(storeKeys.settings, JSON.stringify(state.settings));
+    }
+    function loadState(){
+      try{
+        const e = JSON.parse(localStorage.getItem(storeKeys.entries) || "[]");
+        const s = JSON.parse(localStorage.getItem(storeKeys.settings) || "{}");
+        if(Array.isArray(e)) state.entries = e;
+        Object.assign(state.settings, s || {});
+      }catch(err){}
+    }
+
+    function todayStr(){
+      const d = new Date(); d.setHours(0,0,0,0);
+      return d.toISOString().slice(0,10);
+    }
+
+    // =========================
+    // Utilities
+    // =========================
+    function fmtCurrency(value){
+      const locale = state.settings.lang === "ta" ? "ta-IN" : "en-IN";
+      try{
+        return new Intl.NumberFormat(locale, { style:"currency", currency:"INR", maximumFractionDigits: 2 }).format(Number(value||0));
+      }catch{
+        // Fallback
+        return "₹" + Number(value||0).toLocaleString();
+      }
+    }
+    function fmtNumber(n){
+      const locale = state.settings.lang === "ta" ? "ta-IN" : "en-IN";
+      return Number(n||0).toLocaleString(locale);
+    }
+    function parseAmount(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+    function daysBetween(aStr, bStr){
+      const a = new Date(aStr), b = new Date(bStr);
+      a.setHours(0,0,0,0); b.setHours(0,0,0,0);
+      return Math.max(0, Math.round((b - a) / (1000*60*60*24)));
+    }
+
+    // =========================
+    // i18n Apply
+    // =========================
+    function t(path){
+      const parts = path.split(".");
+      let cur = i18n[state.settings.lang];
+      for(const p of parts){ if(!cur) break; cur = cur[p]; }
+      return cur || path;
+    }
+    function applyI18n(){
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        el.placeholder = t(el.getAttribute("data-i18n-placeholder"));
+      });
+      // Theme label
+      document.getElementById("themeLabel").textContent =
+        document.documentElement.getAttribute("data-theme")==="dark" ? t("app.darkMode") : t("app.lightMode");
+      document.title = t("app.title");
+    }
+
+    // =========================
+    // UI Bindings
+    // =========================
+    const els = {
+      tabs: document.querySelectorAll(".tab"),
+      sections: {
+        ledger: document.getElementById("ledger-section"),
+        add: document.getElementById("add-section"),
+        return: document.getElementById("return-section"),
+        budget: document.getElementById("budget-section"),
+      },
+      // Ledger
+      ledgerBody: document.getElementById("ledgerBody"),
+      statTotal: document.getElementById("statTotal"),
+      statGuests: document.getElementById("statGuests"),
+      statAvg: document.getElementById("statAvg"),
+      btnClearAll: document.getElementById("btnClearAll"),
+      btnExportPDF: document.getElementById("btnExportPDF"),
+      btnExportCSV: document.getElementById("btnExportCSV"),
+      // Add form
+      entryForm: document.getElementById("entryForm"),
+      name: document.getElementById("guestName"),
+      amount: document.getElementById("amount"),
+      date: document.getElementById("date"),
+      note: document.getElementById("note"),
+      // Return
+      interestMode: document.getElementById("interestMode"),
+      interestRate: document.getElementById("interestRate"),
+      returnDate: document.getElementById("returnDate"),
+      returnBody: document.getElementById("returnBody"),
+      totPrincipal: document.getElementById("totPrincipal"),
+      totDays: document.getElementById("totDays"),
+      totInterest: document.getElementById("totInterest"),
+      totReturn: document.getElementById("totReturn"),
+      // Budget
+      feastCost: document.getElementById("feastCost"),
+      budgetCollected: document.getElementById("budgetCollected"),
+      budgetNet: document.getElementById("budgetNet"),
+      budgetProgress: document.getElementById("budgetProgress"),
+      budgetHint: document.getElementById("budgetHint"),
+      // Top controls
+      langEN: document.getElementById("langEN"),
+      langTA: document.getElementById("langTA"),
+      themeToggle: document.getElementById("themeToggle"),
+      themeLabel: document.getElementById("themeLabel"),
+    };
+
+    // Tabs
+    els.tabs.forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const id = btn.dataset.tab;
+        Object.entries(els.sections).forEach(([k, sec]) => {
+          sec.classList.toggle("active", k === id);
+        });
+      });
+    });
+
+    // Theme toggle
+    els.themeToggle.addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme");
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      state.settings.theme = next;
+      els.themeLabel.textContent = next === "dark" ? t("app.darkMode") : t("app.lightMode");
+      saveState();
+    });
+
+    // Language toggle
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const lang = btn.getAttribute("data-lang");
+        state.settings.lang = lang;
+        document.getElementById("langEN").classList.toggle("active", lang === "en");
+        document.getElementById("langTA").classList.toggle("active", lang === "ta");
+        applyI18n();
+        renderAll();
+        saveState();
+      });
+    });
+
+    // Add Entry form
+    els.entryForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const name = els.name.value.trim();
+      const amount = parseAmount(els.amount.value);
+      const date = els.date.value || todayStr();
+      const note = els.note.value.trim();
+      if(!name || !(amount>0) || !date) return;
+
+      state.entries.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+        name, amount, date, note
+      });
+      // Sort by date desc
+      state.entries.sort((a,b)=> (b.date.localeCompare(a.date)) || (a.name.localeCompare(b.name)));
+      saveState();
+      els.entryForm.reset();
+      els.date.value = todayStr();
+      renderAll();
+      // switch to ledger
+      document.getElementById("tab-ledger").click();
+    });
+
+    // Clear all
+    els.btnClearAll.addEventListener("click", () => {
+      if(confirm(t("confirm.clear"))){
+        state.entries = [];
+        saveState();
+        renderAll();
+      }
+    });
+
+    // Export PDF via print (ledger only)
+    els.btnExportPDF.addEventListener("click", () => {
+      window.print();
+    });
+
+    // Export CSV
+    els.btnExportCSV.addEventListener("click", () => {
+      if(state.entries.length === 0) return;
+      const sep = ",";
+      const headers = ["Date","Guest","Amount","Note"];
+      const rows = state.entries.map(e => [e.date, `"${e.name.replace(/"/g,'""')}"`, e.amount, `"${(e.note||"").replace(/"/g,'""')}"`].join(sep));
+      const csv = [headers.join(sep), ...rows].join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "moi_ledger.csv";
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(url);
+      a.remove();
+    });
+
+    // Return calc changes
+    [els.interestMode, els.interestRate, els.returnDate].forEach(el => {
+      el.addEventListener("input", () => {
+        state.settings.interestMode = els.interestMode.value;
+        state.settings.interestRate = parseAmount(els.interestRate.value);
+        state.settings.returnDate = els.returnDate.value || todayStr();
+        saveState();
+        renderReturn();
+      });
+    });
+
+    // Budget changes
+    els.feastCost.addEventListener("input", () => {
+      state.settings.feastCost = parseAmount(els.feastCost.value);
+      saveState();
+      renderBudget();
+    });
+
+    // Ledger Row actions (delete)
+    els.ledgerBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-del]");
+      if(btn){
+        if(!confirm(t("confirm.delete"))) return;
+        const id = btn.getAttribute("data-del");
+        state.entries = state.entries.filter(x => x.id !== id);
+        saveState();
+        renderAll();
+      }
+    });
+
+    // =========================
+    // Renderers
+    // =========================
+    function renderLedger(){
+      const tbody = els.ledgerBody;
+      tbody.innerHTML = "";
+      let total = 0;
+      for(const e of state.entries){
+        total += Number(e.amount || 0);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${e.date}</td>
+          <td>${escapeHTML(e.name)}</td>
+          <td class="amount">${fmtCurrency(e.amount)}</td>
+          <td>${escapeHTML(e.note || "")}</td>
+          <td class="no-print">
+            <button class="btn ghost" data-del="${e.id}">🗑️ <span data-i18n="actions.delete">${t("actions.delete")}</span></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+      const guests = state.entries.length;
+      els.statTotal.textContent = fmtCurrency(total);
+      els.statGuests.textContent = fmtNumber(guests);
+      els.statAvg.textContent = guests ? fmtCurrency(total/guests) : fmtCurrency(0);
+      // Re-apply i18n for dynamically injected buttons
+      applyI18n();
+    }
+
+    function renderReturn(){
+      const mode = state.settings.interestMode;
+      const rate = Number(state.settings.interestRate || 0) / 100; // per year
+      const retDate = state.settings.returnDate || todayStr();
+      els.interestMode.value = state.settings.interestMode;
+      els.interestRate.value = Number(state.settings.interestRate || 0);
+      els.returnDate.value = retDate;
+
+      let totP = 0, totI = 0, totR = 0;
+      const tbody = els.returnBody;
+      tbody.innerHTML = "";
+
+      for(const e of state.entries){
+        const P = Number(e.amount || 0);
+        const d = daysBetween(e.date, retDate);
+        let I = 0;
+        if(mode === "simple" && rate>0){
+          I = P * rate * (d/365);
+        }
+        const R = P + I;
+        totP += P; totI += I; totR += R;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${e.date}</td>
+          <td>${escapeHTML(e.name)}</td>
+          <td class="amount">${fmtCurrency(P)}</td>
+          <td>${fmtNumber(d)}</td>
+          <td class="amount">${fmtCurrency(I)}</td>
+          <td class="amount"><strong>${fmtCurrency(R)}</strong></td>
+        `;
+        tbody.appendChild(tr);
+      }
+      els.totPrincipal.textContent = fmtCurrency(totP);
+      els.totInterest.textContent = fmtCurrency(totI);
+      els.totReturn.textContent = fmtCurrency(totR);
+      els.totDays.textContent = state.entries.length ? "—" : "—";
+    }
+
+    function renderBudget(){
+      const cost = Number(state.settings.feastCost || 0);
+      const collected = state.entries.reduce((s,e)=> s + Number(e.amount||0), 0);
+      const net = collected - cost;
+      els.feastCost.value = cost || "";
+      els.budgetCollected.textContent = fmtCurrency(collected);
+      els.budgetNet.textContent = fmtCurrency(net);
+      const pct = cost>0 ? Math.min(100, Math.round((collected/cost)*100)) : 0;
+      els.budgetProgress.style.width = pct + "%";
+      const hint = net >= 0 ? i18n[state.settings.lang].hints.surplus : i18n[state.settings.lang].hints.shortfall;
+      els.budgetHint.textContent = hint;
+      els.budgetNet.style.backgroundColor = "";
+      els.budgetNet.style.borderColor = "";
+      els.budgetNet.style.color = net>=0 ? "var(--ok)" : "var(--danger)";
+    }
+
+    function renderAll(){
+      renderLedger();
+      renderReturn();
+      renderBudget();
+    }
+
+    function escapeHTML(s){
+      return (s||"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    }
+
+    // =========================
+    // Init
+    // =========================
+    (function init(){
+      loadState();
+      // Apply theme
+      document.documentElement.setAttribute("data-theme", state.settings.theme || "light");
+      // Apply language
+      document.getElementById("langEN").classList.toggle("active", state.settings.lang==="en");
+      document.getElementById("langTA").classList.toggle("active", state.settings.lang==="ta");
+      applyI18n();
+
+      // Default dates
+      els.date.value = todayStr();
+      els.returnDate.value = state.settings.returnDate || todayStr();
+
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
