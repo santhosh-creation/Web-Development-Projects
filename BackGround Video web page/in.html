@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANTHOSH -hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        /* Custom styles for the Rockstar Games VI clone */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Video background */
+        .video-background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .video-background {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: -1;
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #f97316, #ec4899, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom button style */
+        .btn {
+            background: linear-gradient(90deg, #f97316, #ec4899);
+            border: none;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #ec4899;
+        }
+
+        /* Navigation bar */
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: background-color 0.3s ease;
+        }
+        
+        /* Parallax effect */
+        .parallax-container {
+            overflow: hidden;
+            position: relative;
+            border-radius: 0.5rem;
+        }
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 150%; /* Taller than container for parallax effect */
+            position: absolute;
+            width: 100%;
+            top: -25%;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        .mobile-menu a {
+            font-size: 2rem;
+            margin: 1.5rem 0;
+            color: #fff;
+            opacity: 0;
+        }
+        .close-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+
+        /* Image Lightbox Modal */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 2.5rem;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <!-- Video Background -->
+    <div class="video-background-container">
+        <div class="video-overlay"></div>
+        <video autoplay muted loop playsinline class="video-background" poster="1.jpg">
+            <source src="3.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Header -->
+    <header id="navbar" class="navbar fixed top-0 left-0 w-full z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="https://www.rockstargames.com/img/logos/rockstar-logo.svg" alt="Rockstar Games Logo" class="h-6 sm:h-8 mr-4">
+                <h1 class="text-xl sm:text-2xl font-bold gradient-text whitespace-nowrap">SANTHOSH_A</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#hero" class="hover:text-pink-400 transition-colors">Home</a>
+                <a href="#about" class="hover:text-pink-400 transition-colors">About</a>
+                <a href="#gallery" class="hover:text-pink-400 transition-colors">Gallery</a>
+                <a href="#preorder" class="hover:text-pink-400 transition-colors">Pre-Order</a>
+            </nav>
+            <button id="mobile-menu-btn" class="md:hidden z-[110]">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu">
+        <span id="close-btn" class="close-btn">&times;</span>
+        <a href="#hero">Home</a>
+        <a href="#about">About</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#preorder">Pre-Order</a>
+    </div>
+
+    <!-- Main Content -->
+    <main class="relative z-10">
+        <!-- Hero Section -->
+        <section id="hero" class="h-screen flex flex-col justify-center items-center text-center p-4">
+            <h2 class="text-5xl md:text-8xl font-black uppercase gradient-text hero-title">Welcome to Vice City</h2>
+            <p class="text-lg md:text-2xl mt-4 mb-8 hero-subtitle">The next chapter of Grand Theft Auto is coming.</p>
+            <button class="btn hero-btn">Watch Trailer 1</button>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+                <div class="about-text">
+                    <h3 class="text-4xl font-bold mb-4">Return to the Streets of Vice City</h3>
+                    <p class="text-lg text-gray-300">Grand Theft Auto VI heads to the state of Leonida, home to the neon-soaked streets of Vice City and beyond in the biggest, most immersive evolution of the Grand Theft Auto series yet.</p>
+                </div>
+                <div class="parallax-container h-80 md:h-96 about-image">
+                    <div class="parallax-bg" style="background-image: url('1.jpg');"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Gallery -->
+        <section id="gallery" class="py-20 container mx-auto px-4">
+            <h3 class="text-4xl font-bold text-center mb-12 gallery-title">Gallery</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 gallery-grid">
+                <img src="1.jpg" alt="GTA VI Screenshot" class="rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 gallery-item">
+                <img src="1.jpg" alt="GTA VI Screenshot" class="rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 gallery-item">
+                <img src="1.jpg" alt="GTA VI Screenshot" class="rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 gallery-item">
+                <img src="1.jpg" alt="GTA VI Screenshot" class="rounded-lg cursor-pointer transition-transform duration-300 hover:scale-105 gallery-item">
+            </div>
+        </section>
+
+        <!-- Pre-Order Section -->
+        <section id="preorder" class="py-20 text-center container mx-auto px-4">
+            <div class="preorder-content">
+                <h3 class="text-4xl font-bold mb-4">Coming 2025</h3>
+                <p class="text-lg text-gray-300 mb-8">Available for PlayStation 5 and Xbox Series X|S.</p>
+                <button class="btn">Wishlist Now</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-8 mt-20">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" class="hover:text-white transition-colors">Twitter</a>
+                <a href="#" class="hover:text-white transition-colors">Instagram</a>
+                <a href="#" class="hover:text-white transition-colors">Facebook</a>
+                <a href="#" class="hover:text-white transition-colors">YouTube</a>
+            </div>
+            <p class="text-sm">&copy; 2025 Rockstar Games, Inc. Rockstar Games, Grand Theft Auto, the GTA Five, and the Rockstar Games R* marks and logos are trademarks and/or registered trademarks of Take-Two Interactive Software, Inc. in the U.S.A. and/or foreign countries. All other marks and trademarks are properties of their respective owners. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span id="lightbox-close" class="lightbox-close">&times;</span>
+        <img id="lightbox-image" src="" alt="Enlarged screenshot">
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- HERO ANIMATIONS ---
+        const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+        heroTl.from('.hero-title', { opacity: 0, y: 50, duration: 1 })
+              .from('.hero-subtitle', { opacity: 0, y: 30, duration: 0.8 }, '-=0.6')
+              .from('.hero-btn', { opacity: 0, scale: 0.8, duration: 0.6 }, '-=0.5');
+
+        // --- SCROLL-TRIGGERED ANIMATIONS ---
+        // Navbar background change on scroll
+        gsap.to('#navbar', {
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: '+=100',
+                scrub: 1,
+            },
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        });
+        
+        // Parallax background for the video
+        gsap.to('.video-background', {
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom top',
+                scrub: true
+            },
+            y: '-20%' // Moves the video up as you scroll down
+        });
+
+        // About Section Animation
+        const aboutTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: '#about',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            }
+        });
+        aboutTl.from('.about-text', { opacity: 0, x: -100, duration: 1, ease: 'power3.out' })
+               .from('.about-image', { opacity: 0, x: 100, duration: 1, ease: 'power3.out' }, '-=0.8');
+
+        // Gallery Section Animation
+        gsap.from('.gallery-title', {
+            scrollTrigger: {
+                trigger: '#gallery',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 50,
+            duration: 1
+        });
+        gsap.from('.gallery-item', {
+            scrollTrigger: {
+                trigger: '.gallery-grid',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            y: 50,
+            duration: 0.5,
+            stagger: 0.2
+        });
+
+        // Pre-Order Section Animation
+        gsap.from('.preorder-content', {
+            scrollTrigger: {
+                trigger: '#preorder',
+                start: 'top 80%',
+                toggleActions: 'play none none none'
+            },
+            opacity: 0,
+            scale: 0.9,
+            duration: 1
+        });
+        
+        // --- MOBILE MENU ---
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuLinks = mobileMenu.querySelectorAll('a');
+
+        const openMenu = () => {
+            mobileMenu.classList.add('active');
+            gsap.to(mobileMenu, { x: '0%', duration: 0.5, ease: 'power3.inOut' });
+            gsap.fromTo(menuLinks, 
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, delay: 0.3 }
+            );
+        };
+
+        const closeMenu = () => {
+            gsap.to(mobileMenu, { 
+                x: '100%', 
+                duration: 0.5, 
+                ease: 'power3.inOut',
+                onComplete: () => mobileMenu.classList.remove('active')
+            });
+        };
+
+        mobileMenuBtn.addEventListener('click', openMenu);
+        closeBtn.addEventListener('click', closeMenu);
+        menuLinks.forEach(link => link.addEventListener('click', closeMenu));
+        
+        // --- LIGHTBOX ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const galleryImages = document.querySelectorAll('.gallery-item');
+
+        galleryImages.forEach(img => {
+            img.addEventListener('click', () => {
+                lightboxImage.src = img.src;
+                lightbox.classList.add('active');
+            });
+        });
+
+        const closeLightbox = () => {
+            lightbox.classList.remove('active');
+        };
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>
