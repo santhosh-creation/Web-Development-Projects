@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Photo Album</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+      <!-- Static Navigation Bar -->
+  <nav class="navbar">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+ <h1>.</h1>
+  <div class="gallery">
+    <img src="image/1.png" alt="Photo 1" />
+    <img src="image/2.PNG" alt="Photo 2" />
+    <img src="image/3.PNG" alt="Photo 3" />
+    <img src="image/4.PNG" alt="Photo 3" />
+    <img src="image/5.PNG" alt="Photo 4" />
+    <img src="image/6.PNG" alt="Photo 3" />
+    <img src="image/7.jpg" alt="Photo 3" />
+    <img src="image/8.jpg" alt="Photo 3" />
+    <img src="image/9.jpg" alt="Photo 3" />
+    <img src="image/10.jpg" alt="Photo 3" />
+    <img src="image/11.jpg" alt="Photo 3" />
+    <img src="image/12.jpg" alt="Photo 3" />
+    <img src="image/13.jpg" alt="Photo 3" />
+    <img src="image/14.jpg" alt="Photo 3" />
+
+    <!-- Add more images as needed -->
+  </div>
+
+  <div id="lightbox" class="lightbox">
+    <span class="close">&times;</span>
+    <img id="lightbox-img" src="" />
+  </div>
+
+  <script>
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    document.querySelectorAll(".gallery img").forEach(img => {
+      img.addEventListener("click", () => {
+        lightbox.style.display = "flex";
+        lightboxImg.src = img.src;
+      });
+    });
+    document.querySelector(".close").addEventListener("click", () => {
+      lightbox.style.display = "none";
+    });
+  </script>
+
+<style>
+    body {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+  
+    body.loaded {
+      opacity: 1;
+    }
+  </style>
+  <script>
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+
+
+<style>
+    /* Already included above if you're updating CSS */
+  </style>
+  <script>
+    window.addEventListener('load', () => {
+      document.body.classList.add('loaded');
+    });
+  </script>
+  
+
+</body>
+</html>
