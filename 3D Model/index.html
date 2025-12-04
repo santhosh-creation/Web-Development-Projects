@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My 3D Models</title>
+  <link rel="icon" href="ico.png" type="image/png" />
+  <link rel="stylesheet" href="as/style.css" />
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body>
+  <header>
+    <button id="backHomeBtn" onclick="location.href='https://santhosh2025.neocities.org/profile/'">← Back Home</button>
+    <h1>My Blender 3D Models</h1>
+    <input type="text" id="search" placeholder="Search models..." />
+    <label class="switch">
+      <input type="checkbox" id="darkToggle">
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <nav>
+    <button data-filter="all">All</button>
+    <button data-filter="Mobil">Mobile</button>
+    <button data-filter="city">City</button>
+    <button data-filter="Funny">Funny</button>
+  </nav>
+
+  <div id="modelModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <model-viewer id="modalModel" src="" alt="Model Viewer"
+        auto-rotate camera-controls background-color="#111"
+        style="width: 100%; height: 80vh;">
+      </model-viewer>
+    </div>
+  </div>
+
+  <main class="gallery">
+    <div class="card" data-category="city">
+      <model-viewer src="models/car1.glb" alt="1975 Porsche 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/car1-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>City Car</h3>
+    </div>
+
+    <div class="card" data-category="Mobil">
+      <model-viewer src="models/MOBIL.glb" alt="Generic Mobile Phone 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/MOBIL-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Generic Mobile</h3>
+    </div>
+
+    <div class="card" data-category="city">
+      <model-viewer src="models/house.glb" alt="Detailed House Block 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/house-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>House Block</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Sword.glb" alt="Fantasy Sword 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Sword-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Sword</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/dark.glb" alt="3D Text Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/dark-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>3D Text</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/KATHTHI.glb" alt="Sharp Knife 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/KATHTHI-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>A Knife</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/THLIGHT.glb" alt="Modern Torch Light 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/THLIGHT-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>A Torch Light</h3>
+    </div>
+
+    <div class="card" data-category="city">
+      <model-viewer src="models/untitled.glb" alt="Generic City Block 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/untitled-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>City Block</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/CLASS.glb" alt="Classroom Furniture Block 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/CLASS-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Class Block</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/safe.glb" alt="Traffic Cones 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/safe-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Traffic Cones</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Loptop.glb" alt="Laptop Computer 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Loptop-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Laptop</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Loptop_001.glb" alt="Laptop Computer Version 2 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Loptop_001-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Laptop-II</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/charger.glb" alt="Mobile Charger 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/charger-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Mobile Charger</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/house test1.glb" alt="House Building Version 2 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/house-test1-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>House_II</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Leef_31.glb" alt="Single Leaf 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Leef_31-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Leaf</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Fan.glb" alt="Table Fan 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Fan-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Table Fan</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/Scall.glb" alt="Balancing Scales 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/Scall-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>Scales</h3>
+    </div>
+
+    <div class="card" data-category="Funny">
+      <model-viewer src="models/2022.glb" alt="Gamer Character 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/2022-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>The GAMER</h3>
+    </div>
+
+    <div class="card" data-category="Mobil">
+      <model-viewer src="models/S24.glb" alt="Samsung S24 Mobile Phone 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/S24-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>SAMSUNG S24</h3>
+    </div>
+
+
+  <div class="card" data-category="Mobil">
+      <model-viewer src="models/THE ROOM.glb" alt="The Room 3D Model"
+        auto-rotate camera-controls background-color="#111"
+        loading="lazy" poster="models/THE ROOM-poster.jpg"
+        style="width: 100%; height: 300px;">
+      </model-viewer>
+      <h3>THE ROOM</h3>
+    </div>
+
+
+
+  </main>
+  <script src="as/script.js"></script>
+</body>
+</html>
