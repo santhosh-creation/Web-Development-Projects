@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiBiz CRM - Manage Your Businesses & Contacts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --info: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --astrology-primary: #5e60ce;
+            --astrology-secondary: #6930c3;
+            --electrical-primary: #0077b6;
+            --electrical-secondary: #03045e;
+            --family-primary: #2a9d8f;
+            --family-secondary: #264653;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 1rem;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            margin-right: 0.75rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .workspace-selector {
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .workspace-option {
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .workspace-option i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .workspace-option.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: white;
+        }
+
+        .workspace-option:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-btn, .user-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 1rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .notification-btn:hover, .user-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .task-list, .activity-list {
+            list-style: none;
+        }
+
+        .task-item, .activity-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .task-item:last-child, .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-time {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .activity-content {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .activity-icon {
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-text {
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Workspace Specific Styles */
+        .astrology-theme {
+            --primary: var(--astrology-primary);
+            --secondary: var(--astrology-secondary);
+        }
+
+        .electrical-theme {
+            --primary: var(--electrical-primary);
+            --secondary: var(--electrical-secondary);
+        }
+
+        .family-theme {
+            --primary: var(--family-primary);
+            --secondary: var(--family-secondary);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-bar {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Animation Classes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .quick-action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container astrology-theme">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-star-and-crescent"></i>
+                <h1>MultiBiz CRM</h1>
+            </div>
+
+            <div class="workspace-selector">
+                <div class="workspace-option active">
+                    <i class="fas fa-moon"></i>
+                    <span>Astrology Services</span>
+                </div>
+                <div class="workspace-option">
+                    <i class="fas fa-bolt"></i>
+                    <span>Electrical Services</span>
+                </div>
+                <div class="workspace-option">
+                    <i class="fas fa-home"></i>
+                    <span>Family Contacts</span>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-address-book"></i>
+                        <span>Contacts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Jobs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Financials</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>Notes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-file-upload"></i>
+                        <span>Documents</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Issue Log</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Astrology Services Dashboard</h2>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search contacts, jobs, notes...">
+                </div>
+                <div class="user-actions">
+                    <div class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="user-btn">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <span>Add New Contact</span>
+                </div>
+                <div class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <span>Create New Job</span>
+                </div>
+                <div class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <span>Create Invoice</span>
+                </div>
+                <div class="quick-action-btn">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <span>Add Note</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Widgets -->
+            <div class="dashboard">
+                <!-- Today's Appointments -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Today's Appointments</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                    </div>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <div class="task-title">Natal Chart Reading - Sarah Johnson</div>
+                            <div class="task-time">10:00 AM - 11:30 AM</div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-title">Relationship Compatibility - Mark Taylor</div>
+                            <div class="task-time">2:00 PM - 3:00 PM</div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-title">Yearly Forecast - Emily Roberts</div>
+                            <div class="task-time">4:30 PM - 5:30 PM</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                    </div>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-icon">
+                                    <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-text">Added note to Sarah Johnson's contact</div>
+                                    <div class="activity-time">Today, 9:45 AM</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-text">Marked "Yearly Forecast" as completed</div>
+                                    <div class="activity-time">Yesterday, 5:45 PM</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-text">Added new contact: Robert Chen</div>
+                                    <div class="activity-time">Yesterday, 3:30 PM</div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Pending Payments -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Pending Payments</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                    <ul class="task-list">
+                        <li class="task-item">
+                            <div class="task-title">Michael Rodriguez - $150</div>
+                            <div class="task-time">Due: 3 days ago</div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-title">Lisa Thompson - $200</div>
+                            <div class="task-time">Due: Tomorrow</div>
+                        </li>
+                        <li class="task-item">
+                            <div class="task-title">David Wilson - $85</div>
+                            <div class="task-time">Due: In 5 days</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Active Jobs -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Jobs</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number">12</div>
+                    <p class="stat-text">Jobs currently in progress</p>
+                    <div class="progress-bar" style="height: 10px; background: #f0f0f0; border-radius: 5px; margin: 1rem 0;">
+                        <div style="height: 100%; width: 60%; background: var(--primary); border-radius: 5px;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="stat-text">8 completed</span>
+                        <span class="stat-text">4 pending</span>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Monthly Performance</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-around; height: 150px;">
+                        <div style="text-align: center;">
+                            <div class="stat-number">15</div>
+                            <div class="stat-text">Completed</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="stat-number">7</div>
+                            <div class="stat-text">In Progress</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        <i class="fas fa-chart-line"></i> View Full Report
+                    </button>
+                </div>
+
+                <!-- Issue Log -->
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Issues</h3>
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-icon">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-text">Client reported incorrect birth time in chart</div>
+                                    <div class="activity-time">Status: <span style="color: var(--warning);">Open</span></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-text">Video call connection issues resolved</div>
+                                    <div class="activity-time">Status: <span style="color: var(--success);">Resolved</span></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Workspace switching functionality
+        document.querySelectorAll('.workspace-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                document.querySelectorAll('.workspace-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Change theme based on selected workspace
+                const appContainer = document.querySelector('.app-container');
+                if (this.querySelector('span').textContent === 'Astrology Services') {
+                    appContainer.className = 'app-container astrology-theme';
+                    document.querySelector('.header h2').textContent = 'Astrology Services Dashboard';
+                } else if (this.querySelector('span').textContent === 'Electrical Services') {
+                    appContainer.className = 'app-container electrical-theme';
+                    document.querySelector('.header h2').textContent = 'Electrical Services Dashboard';
+                } else {
+                    appContainer.className = 'app-container family-theme';
+                    document.querySelector('.header h2').textContent = 'Family Contacts Dashboard';
+                }
+            });
+        });
+
+        // Simulate loading animation
+        document.querySelectorAll('.card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Mark task as completed on click
+        document.querySelectorAll('.task-title').forEach(title => {
+            title.addEventListener('click', function() {
+                this.classList.toggle('completed');
+            });
+        });
+    </script>
+</body>
+</html>
