@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dynamic Island for Android</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Dynamic Island Container -->
+    <div id="dynamicIsland" class="dynamic-island" data-state="small">
+        <!-- Small State Content -->
+        <div class="island-content small-content">
+            <div class="island-indicator"></div>
+        </div>
+        
+        <!-- Medium State Content -->
+        <div class="island-content medium-content">
+            <div class="medium-info">
+                <span class="medium-text">Tap to expand</span>
+            </div>
+        </div>
+        
+        <!-- Large State Content -->
+        <div class="island-content large-content">
+            <!-- Music Player Content -->
+            <div class="content-section music-content">
+                <div class="music-info">
+                    <div class="album-art">
+                        <div class="music-icon">🎵</div>
+                    </div>
+                    <div class="track-details">
+                        <div class="track-title">Montagem Orchestra Sinfonica</div>
+                        <div class="track-artist">DJ Tenebroso</div>
+                    </div>
+                    <div class="music-controls">
+                        <button class="control-btn" id="playPauseBtn">⏸️</button>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <span class="time current-time">0:16</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                    <span class="time total-time">3:19</span>
+                </div>
+            </div>
+            
+            <!-- Timer Content -->
+            <div class="content-section timer-content">
+                <div class="timer-display">
+                    <div class="timer-icon">⏱️</div>
+                    <div class="timer-info">
+                        <div class="timer-time" id="timerTime">03:00</div>
+                        <div class="timer-label">Timer Running</div>
+                    </div>
+                    <button class="control-btn timer-control" id="timerBtn">⏸️</button>
+                </div>
+                <div class="timer-progress">
+                    <div class="timer-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="timer-bg"></circle>
+                            <circle cx="50" cy="50" r="45" class="timer-fill" id="timerCircle"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call Content -->
+            <div class="content-section call-content">
+                <div class="call-info">
+                    <div class="caller-avatar">📞</div>
+                    <div class="caller-details">
+                        <div class="caller-name">John Doe</div>
+                        <div class="caller-status">Incoming call...</div>
+                    </div>
+                </div>
+                <div class="call-controls">
+                    <button class="call-btn decline-btn" id="declineBtn">❌</button>
+                    <button class="call-btn accept-btn" id="acceptBtn">✅</button>
+                </div>
+            </div>
+            
+            <!-- Notification Content -->
+            <div class="content-section notification-content">
+                <div class="notification-item">
+                    <div class="notification-icon">💬</div>
+                    <div class="notification-details">
+                        <div class="notification-title">Messages</div>
+                        <div class="notification-text">Hey! How are you doing?</div>
+                        <div class="notification-time">2m ago</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Battery Content -->
+            <div class="content-section battery-content">
+                <div class="battery-display">
+                    <div class="battery-icon">🔋</div>
+                    <div class="battery-info">
+                        <div class="battery-level">85%</div>
+                        <div class="battery-status">Charging • 45 min remaining</div>
+                    </div>
+                    <div class="battery-visual">
+                        <div class="battery-shell">
+                            <div class="battery-fill" style="width: 85%"></div>
+                            <div class="battery-tip"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <div class="panel-header">
+            <h2>Dynamic Island Demo</h2>
+            <button class="btn btn--secondary" id="settingsBtn">Settings</button>
+        </div>
+        
+        <div class="demo-buttons">
+            <button class="btn btn--primary demo-btn" data-demo="music">🎵 Music Player</button>
+            <button class="btn btn--primary demo-btn" data-demo="timer">⏱️ Timer</button>
+            <button class="btn btn--primary demo-btn" data-demo="call">📞 Phone Call</button>
+            <button class="btn btn--primary demo-btn" data-demo="notification">💬 Notification</button>
+            <button class="btn btn--primary demo-btn" data-demo="battery">🔋 Battery Status</button>
+        </div>
+        
+        <div class="island-controls">
+            <label class="form-label">Island State:</label>
+            <div class="state-buttons">
+                <button class="btn btn--outline state-btn" data-state="small">Small</button>
+                <button class="btn btn--outline state-btn" data-state="medium">Medium</button>
+                <button class="btn btn--outline state-btn active" data-state="large">Large</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel hidden" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Settings</h3>
+            <button class="btn btn--secondary" id="closeSettingsBtn">Close</button>
+        </div>
+        
+        <div class="settings-content">
+            <div class="setting-group">
+                <label class="form-label">Theme:</label>
+                <select class="form-control" id="themeSelect">
+                    <option value="default">Deep Purple</option>
+                    <option value="space">Space Black</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label class="form-label">Island Position:</label>
+                <select class="form-control" id="positionSelect">
+                    <option value="center">Center</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label class="form-label">Animation Speed:</label>
+                <input type="range" class="form-control" id="speedRange" min="0.5" max="2" step="0.1" value="1">
+                <span class="range-value">1x</span>
+            </div>
+            
+            <div class="setting-group">
+                <label class="form-label">Island Size:</label>
+                <input type="range" class="form-control" id="sizeRange" min="0.8" max="1.5" step="0.1" value="1">
+                <span class="range-value">1x</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Info -->
+    <div class="app-info">
+        <h1>Dynamic Island for Android</h1>
+        <p>Experience iPhone's Dynamic Island feature on your Android device. This web implementation showcases smooth animations, interactive content, and responsive design optimized for mobile browsers.</p>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <h4>Music Player</h4>
+                <p>Control playback with a beautiful interface</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⏱️</div>
+                <h4>Timer & Stopwatch</h4>
+                <p>Visual countdown with progress indicators</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📞</div>
+                <h4>Call Interface</h4>
+                <p>Incoming and active call management</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔋</div>
+                <h4>Battery Status</h4>
+                <p>Real-time battery level and charging info</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
