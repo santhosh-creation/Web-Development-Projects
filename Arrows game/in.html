@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Arrows Puzzle — Demo (HTML / CSS / JS)</title>
+<style>
+  :root{
+    --bg:#f3f3f5;
+    --panel:#ffffff;
+    --accent:#111827;
+    --muted:#9aa3ae;
+    --tile:#ffffff;
+    --tile-border:#1f2937;
+    --shadow: 0 6px 18px rgba(20,20,30,0.08);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at center, #ffffff 0%, #efeff1 60%, #e6e7e9 100%);
+    padding:20px;
+  }
+
+  /* Card container to mimic ad */
+  .card{
+    width:100%;
+    max-width:720px;
+    background:var(--panel);
+    box-shadow:var(--shadow);
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid rgba(0,0,0,0.04);
+    position:relative;
+  }
+
+  /* Top area: maze */
+  .maze-wrap{
+    padding:26px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
+  }
+
+  .grid {
+    --cols:9;
+    --rows:11;
+    display:grid;
+    grid-template-columns:repeat(var(--cols), 1fr);
+    grid-auto-rows: minmax(44px, 6.6vh);
+    gap:8px;
+    width:100%;
+    aspect-ratio: 9 / 11; /* keeps square-like feel */
+    max-height:72vh;
+  }
+
+  .cell {
+    background:var(--tile);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:3px solid transparent;
+    position:relative;
+    box-sizing:border-box;
+    touch-action: manipulation;
+    user-select:none;
+  }
+
+  .cell.tile-border { border-color: var(--tile-border); }
+
+  .arrow {
+    width:56%;
+    height:56%;
+    display:inline-block;
+    transform-origin:center center;
+    transition: transform 240ms cubic-bezier(.2,.9,.3,1);
+    pointer-events:none;
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,0.08));
+  }
+
+  /* simple SVG arrow stroke */
+  .arrow svg{ width:100%; height:100%; }
+
+  .cell.start { background: linear-gradient(180deg,#fffbe6,#fff3d6); }
+  .cell.exit  { background: linear-gradient(180deg,#e9fff2,#d7ffee); }
+
+  /* overlay controls like an in-stream ad */
+  .ad-overlay{
+    position:absolute;
+    left:16px;
+    right:16px;
+    bottom:16px;
+    background:rgba(255,255,255,0.96);
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,0.06);
+    padding:12px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    box-shadow: 0 8px 20px rgba(10,10,20,0.06);
+  }
+  .ad-info { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .ad-title{ font-weight:700; color:var(--accent); font-size:16px; }
+  .ad-sub{ color:var(--muted); font-size:13px; }
+  .install-btn{
+    background:#111827;
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+  }
+
+  /* controls area above ad */
+  .controls{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+    align-items:center;
+  }
+  .btn{
+    padding:8px 12px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,0.07);
+    border-radius:8px;
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .btn.primary{ background:#0ea5a4; color:#fff; border:0; box-shadow:none; }
+
+  .status{
+    margin-left:auto;
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  /* animated finger marker */
+  .finger{
+    position:absolute;
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:linear-gradient(180deg,#ffffff,#f6f6f6);
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform:translate(-50%,-50%) scale(.9);
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .finger.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+  /* small legend */
+  .legend{ display:flex; gap:8px; align-items:center; margin-top:10px; color:var(--muted); font-size:13px; }
+  .legend .dot{ width:14px; height:14px; border-radius:4px; background:#e2e8f0; border:1px solid rgba(0,0,0,0.06); }
+
+  @media (max-width:520px){
+    .grid{ gap:6px; }
+    .arrow{ transition: transform 180ms;}
+    .ad-overlay{ left:12px; right:12px; bottom:12px; padding:10px; }
+  }
+</style>
+</head>
+<body>
+  <div class="card" role="application" aria-label="Arrows Puzzle demo ad">
+    <div class="maze-wrap">
+      <div id="grid" class="grid" aria-hidden="false"></div>
+
+      <div class="controls">
+        <button id="shuffle" class="btn" title="Shuffle arrows">Shuffle</button>
+        <button id="auto" class="btn primary" title="Start following arrows">Play</button>
+        <button id="reset" class="btn" title="Reset to initial layout">Reset</button>
+        <div class="status" id="status">Tap tiles to rotate → Start from the bottom-right.</div>
+      </div>
+
+      <div class="legend">
+        <div class="dot" style="background:linear-gradient(180deg,#fffbe6,#fff3d6)"></div><div>Start</div>
+        <div style="width:8px"></div>
+        <div class="dot" style="background:linear-gradient(180deg,#e9fff2,#d7ffee)"></div><div>Exit</div>
+      </div>
+
+      <div id="finger" class="finger" aria-hidden="true">
+        <!-- small hand icon (SVG) -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 12v-4a2 2 0 1 1 4 0v3" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v-1a2 2 0 1 1 4 0v6" stroke="#111827" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 18v-4" stroke="#111827" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <!-- Ad-style bottom overlay -->
+    <div class="ad-overlay" role="dialog" aria-label="Install prompt">
+      <div style="width:52px;height:52px;border-radius:10px;background:linear-gradient(180deg,#fff,#f2f4f7);display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.06)">
+        <!-- small icon -->
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="3" stroke="#111827" stroke-width="1.2"></rect>
+          <path d="M8 10h8M8 14h5" stroke="#111827" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ad-info">
+        <div class="ad-title">A Satisfying Brain Teaser</div>
+        <div class="ad-sub">Follow arrows through the maze — tap tiles to rotate and create the path.</div>
+      </div>
+      <button id="install" class="install-btn" aria-label="Install now">Install now</button>
+    </div>
+  </div>
+
+<script>
+/*
+  Arrows Puzzle Demo
+  - Grid of directional tiles (arrow points up/right/down/left)
+  - Tap a cell to rotate its arrow clockwise (90deg)
+  - Press Play: finger animates following arrows starting from start cell
+  - If path reaches exit -> success; else stuck after iteration limit
+  - Includes shuffle & reset
+*/
+
+// Configuration
+const COLS = 9;
+const ROWS = 11;
+const START = { c: COLS - 1, r: ROWS - 1 }; // bottom-right
+const EXIT = { c: Math.floor(COLS/2), r: 0 }; // top middle-ish
+const MAX_STEPS = 300;
+
+// direction indexes: 0 = up, 1 = right, 2 = down, 3 = left
+const DIRS = [
+  {dx:0,dy:-1}, {dx:1,dy:0}, {dx:0,dy:1}, {dx:-1,dy:0}
+];
+
+// DOM refs
+const gridEl = document.getElementById('grid');
+const shuffleBtn = document.getElementById('shuffle');
+const autoBtn = document.getElementById('auto');
+const resetBtn = document.getElementById('reset');
+const statusEl = document.getElementById('status');
+const finger = document.getElementById('finger');
+const installBtn = document.getElementById('install');
+
+let cells = []; // array of objects {dir}
+let initialMap = [];
+
+// build grid and initial arrows
+function buildGrid(){
+  gridEl.style.setProperty('--cols', COLS);
+  gridEl.style.setProperty('--rows', ROWS);
+  gridEl.innerHTML = '';
+  cells = [];
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const idx = r*COLS + c;
+      const tile = document.createElement('div');
+      tile.className = 'cell tile-border';
+      tile.dataset.r = r;
+      tile.dataset.c = c;
+      // start/exit marking
+      if(r===START.r && c===START.c){ tile.classList.add('start'); }
+      if(r===EXIT.r && c===EXIT.c){ tile.classList.add('exit'); }
+
+      // arrow element
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.innerHTML = svgArrow(); // default placeholder
+      tile.appendChild(arrow);
+
+      // click rotates arrow clockwise
+      tile.addEventListener('click', (e)=>{
+        if(isAnimating) return;
+        const index = r*COLS + c;
+        rotateCell(index, 1);
+      });
+
+      gridEl.appendChild(tile);
+      cells.push({dir:0, el:tile, arrowEl:arrow});
+    }
+  }
+}
+
+// svg arrow markup (a simple arrow pointing up by default)
+function svgArrow(){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 19V6" stroke="#111827" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6 12l6-6 6 6" stroke="#111827" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+// apply map to visuals
+function render(){
+  cells.forEach((cell, idx)=>{
+    const rot = cell.dir * 90;
+    cell.arrowEl.style.transform = `rotate(${rot}deg)`;
+  });
+}
+
+// rotate a cell by steps (1 = +90deg)
+function rotateCell(index, steps=1){
+  const cell = cells[index];
+  cell.dir = (cell.dir + steps) & 3;
+  render();
+}
+
+// randomize arrows but keep start and exit maybe helpful
+function shuffleMap(){
+  for(let i=0;i<cells.length;i++){
+    if(i === START.r*COLS + START.c || i === EXIT.r*COLS + EXIT.c) continue;
+    cells[i].dir = Math.floor(Math.random()*4);
+  }
+  // ensure start has a direction not pointing out-of-bounds immediately
+  cells[START.r*COLS + START.c].dir = 0; // encourage upward to begin
+  // store snapshot if first time creating
+  render();
+}
+
+// make a solvable-ish path for demo (simple carved path from start to exit)
+function createDemoPath(){
+  // clear
+  for(let i=0;i<cells.length;i++) cells[i].dir = 0;
+  // carve path: bottom-right up a bit, leftwards zigzag to center, then up to exit
+  let c = START.c, r = START.r;
+  function setDir(rc, cc, dir){ cells[rc*COLS + cc].dir = dir; }
+  // go up 2
+  setDir(r,c,0); r-=1;
+  setDir(r,c,0); r-=1;
+  // go left repeatedly
+  while(c > 2){
+    setDir(r,c,3); c-=1;
+  }
+  // up to row 2
+  while(r > 2){
+    setDir(r,c,0); r-=1;
+  }
+  // snake right a bit
+  while(c < EXIT.c){
+    setDir(r,c,1); c+=1;
+  }
+  // finally head up to exit
+  while(r > EXIT.r){
+    setDir(r,c,0); r-=1;
+  }
+  // ensure exit cell has an arrow (it doesn't matter)
+  render();
+}
+
+// save initial map for reset
+function saveInitial(){
+  initialMap = cells.map(c => c.dir);
+}
+
+// restore initial
+function restoreInitial(){
+  if(initialMap.length===0) return;
+  for(let i=0;i<cells.length;i++){
+    cells[i].dir = initialMap[i];
+  }
+  render();
+  status('Reset to initial layout.');
+}
+
+// helper status text
+function status(txt){
+  statusEl.textContent = txt;
+}
+
+// ---- animation logic for following arrows ----
+let isAnimating = false;
+async function followPath(){
+  if(isAnimating) return;
+  isAnimating = true;
+  status('Following arrows...');
+  finger.classList.add('show');
+
+  // compute positions of cells
+  const tiles = Array.from(document.querySelectorAll('.cell'));
+  const cellRect = (r,c) => tiles[r*COLS + c].getBoundingClientRect();
+
+  // start at START cell center
+  let cr = START.r, cc = START.c;
+  let steps = 0;
+  moveFingerToCell(cr, cc);
+  await sleep(360);
+
+  while(steps < MAX_STEPS){
+    steps++;
+    const index = cr*COLS + cc;
+    const dir = cells[index].dir;
+    // quick highlight
+    flashCell(index);
+    // next cell coordinates
+    const nx = cc + DIRS[dir].dx;
+    const ny = cr + DIRS[dir].dy;
+
+    // animate finger to edge/next cell
+    await animateStep(cr, cc, ny, nx);
+
+    // update
+    cr = ny; cc = nx;
+
+    // check bounds
+    if(cr < 0 || cr >= ROWS || cc < 0 || cc >= COLS){
+      // fell out of maze -> stuck
+      status('Stuck — left the maze. Rotate tiles and try again.');
+      break;
+    }
+    // reached exit?
+    if(cr === EXIT.r && cc === EXIT.c){
+      status('Success! You found the exit 🎉');
+      break;
+    }
+
+    // small delay
+    await sleep(120);
+  }
+
+  finger.classList.remove('show');
+  isAnimating = false;
+}
+
+// finger animation helpers
+function moveFingerToCell(r,c){
+  const tiles = Array.from(document.querySelectorAll('.cell'));
+  const rect = tiles[r*COLS + c].getBoundingClientRect();
+  const containerRect = document.querySelector('.card').getBoundingClientRect();
+  finger.style.left = (rect.left + rect.width/2 - containerRect.left) + 'px';
+  finger.style.top  = (rect.top + rect.height/2 - containerRect.top) + 'px';
+}
+
+function animateStep(cr, cc, nr, nc){
+  return new Promise(resolve=>{
+    const tiles = Array.from(document.querySelectorAll('.cell'));
+    const containerRect = document.querySelector('.card').getBoundingClientRect();
+    const fromRect = tiles[cr*COLS + cc].getBoundingClientRect();
+    const toRect = (nr>=0 && nr<ROWS && nc>=0 && nc<COLS) ? tiles[nr*COLS + nc].getBoundingClientRect() : fromRect;
+    const fx = (fromRect.left + fromRect.width/2 - containerRect.left);
+    const fy = (fromRect.top + fromRect.height/2 - containerRect.top);
+    const tx = (toRect.left + toRect.width/2 - containerRect.left);
+    const ty = (toRect.top + toRect.height/2 - containerRect.top);
+
+    // immediate set translate then smooth transition via CSS transform
+    const dx = tx - fx, dy = ty - fy;
+    finger.style.transition = 'transform 280ms cubic-bezier(.2,.9,.3,1), left 0s, top 0s';
+    finger.style.left = fx + 'px';
+    finger.style.top = fy + 'px';
+    requestAnimationFrame(()=>{ // one frame later apply transform
+      finger.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+
+    setTimeout(()=>{
+      // commit new absolute position and reset transform
+      finger.style.transition = 'none';
+      finger.style.left = tx + 'px';
+      finger.style.top = ty + 'px';
+      finger.style.transform = 'translate(-50%,-50%)';
+      resolve();
+    }, 300);
+  });
+}
+
+function flashCell(index){
+  const el = cells[index].el;
+  el.style.transition = 'box-shadow .12s ease, transform .08s ease';
+  el.style.boxShadow = 'inset 0 0 0 3px rgba(16,185,129,0.18)';
+  el.style.transform = 'scale(1.03)';
+  setTimeout(()=>{ el.style.boxShadow=''; el.style.transform=''; }, 220);
+}
+
+// utility
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// shuffle button, auto, reset handlers
+shuffleBtn.addEventListener('click', ()=>{
+  if(isAnimating) return;
+  shuffleMap();
+  saveInitial();
+  status('Grid shuffled. Tap tiles to rotate and create the path.');
+});
+
+autoBtn.addEventListener('click', async ()=>{
+  if(isAnimating) return;
+  await followPath();
+});
+
+resetBtn.addEventListener('click', ()=>{
+  if(isAnimating) return;
+  restoreInitial();
+});
+
+// small mock install CTA
+installBtn.addEventListener('click', ()=>{
+  alert('Install flow simulated — imagine this opens the store page!');
+});
+
+// handle window resize to keep finger placement valid
+window.addEventListener('resize', ()=>{
+  // hide finger if animating; it will get repositioned on next step
+});
+
+// initialize
+buildGrid();
+createDemoPath();
+render();
+saveInitial();
+status('Tap tiles to rotate → Start from the bottom-right. Press Play to follow the arrows.');
+</script>
+</body>
+</html>

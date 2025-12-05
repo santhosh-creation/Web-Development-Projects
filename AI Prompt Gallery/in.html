@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Nano Banana Prompt Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles for the futuristic theme */
+        body {
+            background-color: #0a0a1a;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* Glassmorphism Effect */
+        .glassmorphism {
+            background: rgba(26, 26, 46, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        /* Neon Glow Effect */
+        .neon-glow-purple {
+            box-shadow: 0 0 5px rgba(168, 85, 247, 0.8), 0 0 10px rgba(168, 85, 247, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 5px rgba(34, 211, 238, 0.8), 0 0 10px rgba(34, 211, 238, 0.6), 0 0 20px rgba(34, 211, 238, 0.4);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a044e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6;
+        }
+
+        /* Card reveal animation */
+        .gallery-card {
+            opacity: 0;
+            transform: translateY(30px) scale(0.98);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .gallery-card.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Glitch animation for footer */
+        @keyframes glitch {
+            0% { transform: translate(0); text-shadow: 0 0 2px #8b5cf6, 0 0 5px #06b6d4; }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(1px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(-1px, -1px); }
+            100% { transform: translate(0); text-shadow: 0 0 3px #8b5cf6, 0 0 8px #06b6d4; }
+        }
+        .footer-glitch {
+            animation: glitch 2s linear infinite;
+        }
+        
+        /* Modal transition */
+        #modal.hidden {
+            display: none;
+        }
+        #modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-900">
+
+    <div id="root" class="min-h-screen p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-wider">AI Prompt <span class="text-purple-400">Gallery</span></h1>
+            <p class="text-slate-400 mt-2">Developed By Santhosh_A</p>
+        </header>
+
+        <!-- Search and Filters -->
+        <div class="max-w-7xl mx-auto mb-8 space-y-4">
+            <div class="relative">
+                <input type="search" placeholder="Search images, styles, artists..." class="w-full pl-12 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition duration-300">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                     <svg class="w-5 h-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex flex-wrap gap-4">
+                    <!-- Filter buttons would have JS logic to open dropdowns -->
+                    <button class="px-4 py-2 text-sm glassmorphism rounded-lg hover:bg-purple-500/30 transition duration-300">Style</button>
+                    <button class="px-4 py-2 text-sm glassmorphism rounded-lg hover:bg-purple-500/30 transition duration-300">Artist</button>
+                    <button class="px-4 py-2 text-sm glassmorphism rounded-lg hover:bg-purple-500/30 transition duration-300">Date</button>
+                    <button class="px-4 py-2 text-sm glassmorphism rounded-lg hover:bg-purple-500/30 transition duration-300">Popularity</button>
+                </div>
+            </div>
+             <div class="flex items-center gap-4 pt-2">
+                <span class="text-slate-400 text-sm font-medium">Search History:</span>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full cursor-pointer hover:bg-purple-500/40 transition">Cybernetic Dreams</span>
+                    <span class="px-3 py-1 text-xs bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full cursor-pointer hover:bg-cyan-500/40 transition">Neon Jungle</span>
+                    <span class="px-3 py-1 text-xs bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-full cursor-pointer hover:bg-pink-500/40 transition">Abstract</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Grid -->
+        <main id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            <!-- Gallery cards will be injected here by JavaScript -->
+        </main>
+    </div>
+
+    <!-- Modal Popup -->
+    <div id="modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div id="modal-content" class="glassmorphism rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden relative border border-purple-500/50 shadow-2xl shadow-purple-900/50">
+            <!-- Close button -->
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 z-10 hover:bg-purple-500 transition-colors">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            
+            <div class="w-full md:w-3/5 h-64 md:h-auto">
+                <img id="modal-image" src="" alt="AI Generated Artwork" class="w-full h-full object-cover">
+            </div>
+            
+            <div class="w-full md:w-2/5 p-6 flex flex-col justify-center overflow-y-auto">
+                <h3 class="text-xl font-bold text-purple-300 mb-2">AI Prompt</h3>
+                <div id="modal-prompt-container" class="font-mono text-cyan-300 text-sm min-h-[100px] mb-6 p-4 bg-slate-900/70 rounded-lg border border-cyan-500/20">
+                    <p id="modal-prompt-text"></p>
+                </div>
+                <button id="copy-prompt-btn" class="w-full flex items-center justify-center gap-3 px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500/50">
+                    <svg id="copy-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <svg id="check-icon" class="w-5 h-5 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span id="copy-btn-text">Copy Prompt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="text-center p-6 mt-12 border-t border-slate-800">
+        <p class="footer-glitch text-lg font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+            Developed By Santhosh_A
+        </p>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="hidden fixed bottom-20 md:bottom-6 right-6 w-12 h-12 bg-purple-600/80 backdrop-blur-sm rounded-full text-white flex items-center justify-center hover:bg-purple-500 transition-all duration-300 shadow-lg neon-glow-purple">
+       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+    </button>
+    
+    <!-- Mobile Bottom Navigation -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 glassmorphism p-2 z-40">
+        <div class="flex justify-around">
+            <a href="#" class="flex flex-col items-center text-purple-400 p-2">
+                <svg class="w-6 h-6 mb-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span class="text-xs">Gallery</span>
+            </a>
+            <a href="#" class="flex flex-col items-center text-slate-400 p-2 hover:text-purple-400 transition">
+                 <svg class="w-6 h-6 mb-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="text-xs">About</span>
+            </a>
+            <a href="#" class="flex flex-col items-center text-slate-400 p-2 hover:text-purple-400 transition">
+                <svg class="w-6 h-6 mb-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <span class="text-xs">Contact</span>
+            </a>
+            <a href="#" class="flex flex-col items-center text-slate-400 p-2 hover:text-purple-400 transition">
+                <svg class="w-6 h-6 mb-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <span class="text-xs">Explore</span>
+            </a>
+        </div>
+    </nav>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const galleryGrid = document.getElementById('gallery-grid');
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalPromptText = document.getElementById('modal-prompt-text');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const copyPromptBtn = document.getElementById('copy-prompt-btn');
+            const copyBtnText = document.getElementById('copy-btn-text');
+            const copyIcon = document.getElementById('copy-icon');
+            const checkIcon = document.getElementById('check-icon');
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            // --- Sample Data ---
+            const galleryData = [
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/1.jpg',
+                    prompt: 'Create a high-quality, cinematic image of a young man standing confidently in a racing pose, wearing a sleek F1 racer suit with BMW branding. The outfit should be modern, aerodynamic, and detailed like an authentic F1 uniform, including helmet in hand or on head. Place him beside a powerful BMW F1 car on a race track during sunset. The environment should be dramatic with glowing orange and purple skies, track reflections, and motion blur effects to give a sense of speed and intensity. The final image should focus on realism with a glossy finish, sharp details, and balanced lighting. The person’s face and body proportions should closely resemble the reference image provided.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/2.jpg',
+                    prompt: 'Create a magical, cinematic image of the reference picture but styled like a scene from a Harry Potter movie. The person is wearing a dark wizard’s cloak with intricate details and a scarf in Hogwarts house colors. The camera is at eye level, capturing the subject confidently facing the lens, as if ready for an adventure on a good day with soft, enchanted lighting. The environment is a mystical forest near Hogwarts, with soft floating dust particles and warm sunlight streaming through tall trees, evoking a golden hour atmosphere. The background is slightly foggy with hints of ancient stone pathways and distant castle towers, creating a sense of wonder and mystery. The expression on the person’s face is calm, brave, and curious—reflecting a young wizard ready to explore magic. The scene should feel atmospheric, story-driven, and full of warmth, with soft contrasts and textured shadows enhancing the cinematic look.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/3.jpg',
+                    prompt: 'An enchanted forest from another dimension, glowing flora and fauna, ethereal light beams filtering through strange trees, fantasy art, highly detailed, unreal engine 5.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/4.jpg',
+                    prompt: 'Abstract representation of cosmic nebulae, swirling galaxies of purple and cyan, stars like diamonds, vast and epic scale, digital painting.'
+                },
+                 {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/5.jpg',
+                    prompt: 'A sleek, chrome android meditating in a zen garden of neon sand, juxtaposition of nature and technology, peaceful yet futuristic, ray tracing, sharp focus.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/6.jpg',
+                    prompt: 'Close-up shot of a cybernetic eye, intricate iris details with glowing data streams, macro photography, hyper-detailed, metallic textures.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/7.jpg',
+                    prompt: 'An ancient leviathan rising from a digital ocean, made of circuits and light, stormy background, dramatic, Lovecraftian horror meets TRON.'
+                },
+                {
+                    beforeSrc: 'as/o.jpg',
+                    afterSrc: 'as/8.jpg',
+                    prompt: 'A lone figure in a glowing raincoat standing in a neon-drenched alley of Neo-Tokyo, Blade Runner aesthetic, cinematic, volumetric lighting.'
+                }
+            ];
+
+            // --- Render Gallery ---
+            function renderGallery() {
+                galleryGrid.innerHTML = galleryData.map((item, index) => `
+                    <div class="gallery-card group relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer glassmorphism transform hover:scale-[1.03] hover:shadow-2xl hover:shadow-purple-900/60 transition-all duration-400" data-index="${index}">
+                        <img src="${item.beforeSrc}" alt="Before" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100 group-hover:opacity-0">
+                        <img src="${item.afterSrc}" alt="After" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 group-hover:opacity-100">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                         <div class="absolute bottom-0 left-0 p-4">
+                            <h3 class="text-white font-bold text-lg transform group-hover:translate-y-[-4px] transition-transform duration-300">View Prompt</h3>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderGallery();
+            
+            // --- Intersection Observer for scroll animations ---
+            const cards = document.querySelectorAll('.gallery-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+
+            // --- Modal Logic ---
+            let currentPrompt = '';
+            
+            galleryGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('.gallery-card');
+                if (card) {
+                    const index = card.dataset.index;
+                    const item = galleryData[index];
+                    currentPrompt = item.prompt;
+                    modalImage.src = item.afterSrc;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                    glitchEffect(modalPromptText, currentPrompt);
+                }
+            });
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                modalPromptText.textContent = ''; // Clear prompt
+                // Reset copy button
+                copyBtnText.textContent = 'Copy Prompt';
+                copyIcon.classList.remove('hidden');
+                checkIcon.classList.add('hidden');
+                copyPromptBtn.classList.remove('bg-green-500');
+            };
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                // Close modal if backdrop is clicked
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape" && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // --- Glitch Text Effect ---
+            function glitchEffect(element, text) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+                let interval = null;
+                let iteration = 0;
+
+                element.textContent = ''; // Clear previous text
+                
+                interval = setInterval(() => {
+                    element.textContent = text.split('')
+                        .map((letter, index) => {
+                            if(index < iteration) {
+                                return text[index];
+                            }
+                            return chars[Math.floor(Math.random() * chars.length)];
+                        })
+                        .join('');
+
+                    if(iteration >= text.length){
+                        clearInterval(interval);
+                    }
+                    
+                    iteration += text.length / 15; // Speed of reveal
+                }, 40);
+            }
+
+            // --- Copy to Clipboard ---
+            copyPromptBtn.addEventListener('click', () => {
+                const textarea = document.createElement('textarea');
+                textarea.value = currentPrompt;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                     document.execCommand('copy');
+                     // Animate button
+                    copyBtnText.textContent = 'Copied!';
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+                    copyPromptBtn.classList.add('bg-green-500');
+
+                    setTimeout(() => {
+                        copyBtnText.textContent = 'Copy Prompt';
+                        copyIcon.classList.remove('hidden');
+                        checkIcon.classList.add('hidden');
+                        copyPromptBtn.classList.remove('bg-green-500');
+                    }, 2000);
+                } catch (err) {
+                    copyBtnText.textContent = 'Failed!';
+                    console.error('Failed to copy text: ', err);
+                }
+                document.body.removeChild(textarea);
+            });
+
+            // --- Back to Top Button Logic ---
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

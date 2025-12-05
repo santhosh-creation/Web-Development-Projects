@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptForge | AI Image Trends</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --bg-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --accent-blue: #00a2ff;
+            --accent-purple: #8a2be2;
+            --card-bg: #252525;
+            --overlay-bg: rgba(0, 0, 0, 0.85);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent-blue);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: radial-gradient(circle at top, #2a2a2a, #1a1a1a);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: #cccccc;
+        }
+
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid #444;
+            background: #2a2a2a;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .image-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-container {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+        }
+
+        .before-image, .after-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s, transform 0.8s;
+        }
+
+        .before-image {
+            z-index: 2;
+        }
+
+        .after-image {
+            z-index: 1;
+            opacity: 0;
+            transform: scale(1.1);
+        }
+
+        .image-card:hover .before-image {
+            opacity: 0;
+        }
+
+        .image-card:hover .after-image {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .image-info {
+            padding: 1.5rem;
+        }
+
+        .image-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            padding: 2.5rem;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .prompt-container {
+            background: #2a2a2a;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prompt-text {
+            font-family: monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ccc;
+            opacity: 0;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid #444;
+        }
+
+        .developer {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .developer span {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .social-links a {
+            color: #888;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Glitch effect */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+            100% { transform: translate(0); }
+        }
+
+        .glitch {
+            animation: glitch 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">PromptForge</div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Trending</a></li>
+                <li><a href="#">Collections</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>AI Nano Banana Image Trends</h1>
+        <p>Discover the latest AI-generated image trends. Scroll over images to see the transformation and click to reveal the magic behind the creation.</p>
+        <div class="search-box">
+            <input type="text" placeholder="Search for prompts, styles, or themes...">
+            <i class="fas fa-search"></i>
+        </div>
+    </section>
+
+    <section class="gallery">
+        <!-- Image Card 1 -->
+        <div class="image-card" data-prompt="A cyberpunk banana with neon lights, digital art, trending on ArtStation, nano details, hyperrealistic, futuristic city background">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1579546929662-711aa81148cf?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Cyber Banana</h3>
+                <div class="image-meta">
+                    <span>512 likes</span>
+                    <span>3 days ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card 2 -->
+        <div class="image-card" data-prompt="A banana made of crystal, intricate details, studio lighting, photorealistic, 8k resolution, nano particles visible, masterpiece">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Crystal Banana</h3>
+                <div class="image-meta">
+                    <span>842 likes</span>
+                    <span>1 week ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card 3 -->
+        <div class="image-card" data-prompt="Banana in the style of Van Gogh, oil painting, thick brush strokes, vibrant colors, post-impressionism, artistic">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1536922246289-88c42f957773?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Van Gogh Banana</h3>
+                <div class="image-meta">
+                    <span>673 likes</span>
+                    <span>2 days ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card 4 -->
+        <div class="image-card" data-prompt="A banana superhero flying over a city, comic book style, dynamic pose, dramatic lighting, digital art, popular on ArtStation">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1527474305487-b87b222841cc?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Super Banana</h3>
+                <div class="image-meta">
+                    <span>921 likes</span>
+                    <span>5 days ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card 5 -->
+        <div class="image-card" data-prompt="A steampunk banana with gears and brass elements, intricate design, vintage style, nano mechanics, detailed illustration">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Steampunk Banana</h3>
+                <div class="image-meta">
+                    <span>756 likes</span>
+                    <span>4 days ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card 6 -->
+        <div class="image-card" data-prompt="A banana made of fire, realistic flames, 4k resolution, dramatic lighting, hyperrealistic, trending on Instagram">
+            <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?auto=format&fit=crop&w=600&h=400" alt="Before" class="before-image">
+                <img src="https://images.unsplash.com/photo-1517495306984-f84210f9daa8?auto=format&fit=crop&w=600&h=400" alt="After" class="after-image">
+            </div>
+            <div class="image-info">
+                <h3 class="image-title">Fire Banana</h3>
+                <div class="image-meta">
+                    <span>1.2k likes</span>
+                    <span>1 day ago</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal" id="promptModal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="" alt="AI Generated Image" class="modal-image" id="modalImage">
+            <div class="prompt-container">
+                <p class="prompt-text" id="promptText"></p>
+            </div>
+            <button class="copy-btn" id="copyBtn">
+                <i class="fas fa-copy"></i>
+                Copy Prompt
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="developer">Developed By <span>Santhosh_A</span></div>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageCards = document.querySelectorAll('.image-card');
+            const modal = document.getElementById('promptModal');
+            const modalImage = document.getElementById('modalImage');
+            const promptText = document.getElementById('promptText');
+            const closeModal = document.getElementById('closeModal');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            // Open modal on image click
+            imageCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const afterImage = this.querySelector('.after-image').src;
+                    const prompt = this.getAttribute('data-prompt');
+                    
+                    modalImage.src = afterImage;
+                    promptText.textContent = prompt;
+                    
+                    modal.classList.add('active');
+                    
+                    // Trigger glitch animation after a short delay
+                    setTimeout(() => {
+                        promptText.classList.add('glitch');
+                        
+                        // Show text after glitch animation
+                        setTimeout(() => {
+                            promptText.classList.remove('glitch');
+                            promptText.style.opacity = '1';
+                        }, 500);
+                    }, 300);
+                });
+            });
+            
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                modal.classList.remove('active');
+                promptText.style.opacity = '0';
+            });
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    promptText.style.opacity = '0';
+                }
+            });
+            
+            // Copy prompt to clipboard
+            copyBtn.addEventListener('click', function() {
+                const textArea = document.createElement('textarea');
+                textArea.value = promptText.textContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Provide feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+            
+            // Add scroll-triggered animations for images
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.2
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe image cards for scroll animation
+            imageCards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(50px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
