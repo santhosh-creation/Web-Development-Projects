@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Management Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo">
+                <div class="logo-icon">📋</div>
+                <span class="logo-text">WorkFlow</span>
+            </div>
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="Search projects..." class="search-input">
+                <div class="search-icon">🔍</div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="kanban">📋 Kanban</button>
+                <button class="view-btn" data-view="dashboard">📊 Dashboard</button>
+                <button class="view-btn" data-view="calendar">📅 Calendar</button>
+            </div>
+            <button class="add-project-btn btn--primary">+ New Project</button>
+            <div class="notifications">
+                <span class="notification-icon">🔔</span>
+                <span class="notification-badge">3</span>
+            </div>
+            <div class="profile-menu">
+                <div class="profile-avatar">JD</div>
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="theme-btn">🌙</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-item active" data-section="projects">
+                    <span class="sidebar-icon">📋</span>
+                    <span class="sidebar-text">Projects</span>
+                </div>
+                <div class="sidebar-item" data-section="dashboard">
+                    <span class="sidebar-icon">📊</span>
+                    <span class="sidebar-text">Dashboard</span>
+                </div>
+                <div class="sidebar-item" data-section="calendar">
+                    <span class="sidebar-icon">📅</span>
+                    <span class="sidebar-text">Calendar</span>
+                </div>
+                <div class="sidebar-item" data-section="team">
+                    <span class="sidebar-icon">👥</span>
+                    <span class="sidebar-text">Team</span>
+                </div>
+                <div class="sidebar-item" data-section="analytics">
+                    <span class="sidebar-icon">📈</span>
+                    <span class="sidebar-text">Analytics</span>
+                </div>
+                <div class="sidebar-item" data-section="settings">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span class="sidebar-text">Settings</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view-content hidden">
+                <div class="dashboard-header">
+                    <h1>Dashboard Overview</h1>
+                    <p class="dashboard-subtitle">Track your project progress and team performance</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalProjects">6</div>
+                        <div class="metric-label">Total Projects</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="completedProjects">1</div>
+                        <div class="metric-label">Completed</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="inProgressProjects">2</div>
+                        <div class="metric-label">In Progress</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="upcomingDeadlines">3</div>
+                        <div class="metric-label">Upcoming Deadlines</div>
+                    </div>
+                </div>
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <h3>Project Distribution</h3>
+                        <canvas id="projectChart" style="position: relative; height: 300px;"></canvas>
+                    </div>
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list" id="activityList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kanban View -->
+            <div id="kanbanView" class="view-content">
+                <div class="kanban-header">
+                    <h1>Project Management</h1>
+                    <div class="filters">
+                        <select id="priorityFilter" class="form-control">
+                            <option value="">All Priorities</option>
+                            <option value="critical">Critical</option>
+                            <option value="very-high">Very High</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        <select id="statusFilter" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="planning">Planning</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="on-hold">On Hold</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="kanban-board" id="kanbanBoard"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div id="calendarView" class="view-content hidden">
+                <div class="calendar-header">
+                    <h1>Project Calendar</h1>
+                    <div class="calendar-nav">
+                        <button id="prevMonth" class="btn--outline">‹ Previous</button>
+                        <span id="currentMonth" class="current-month">September 2025</span>
+                        <button id="nextMonth" class="btn--outline">Next ›</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <!-- Team View -->
+            <div id="teamView" class="view-content hidden">
+                <div class="team-header">
+                    <h1>Team Management</h1>
+                    <p>Manage team members and their project assignments</p>
+                </div>
+                <div class="team-grid" id="teamGrid"></div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" class="view-content hidden">
+                <div class="analytics-header">
+                    <h1>Project Analytics</h1>
+                    <p>Detailed insights into project performance</p>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Team Productivity</h3>
+                        <div class="productivity-score">78%</div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Completion Rate</h3>
+                        <div class="completion-rate">17%</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Project Detail Modal -->
+    <div id="projectModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Project Details</h2>
+                <button id="closeModal" class="close-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="projectForm">
+                    <div class="form-group">
+                        <label class="form-label">Project Title</label>
+                        <input type="text" id="projectTitle" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="projectDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <select id="projectPriority" class="form-control">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="very-high">Very High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select id="projectStatus" class="form-control">
+                                <option value="planning">Planning</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="on-hold">On Hold</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" id="projectDueDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Progress (%)</label>
+                        <input type="range" id="projectProgress" min="0" max="100" class="progress-slider">
+                        <span id="progressValue">0%</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancelProject" class="btn--outline">Cancel</button>
+                <button type="button" id="saveProject" class="btn--primary">Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

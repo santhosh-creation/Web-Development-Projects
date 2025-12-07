@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Synesthesia v1.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* * Project Synesthesia: CSS Styles
+         * Version: 1.0
+         * Developer: SANTHOSH_A
+         * Date: August 26, 2025
+         * Description: Modern, neon-inspired visuals for the beat-responsive system.
+         * Uses a dark theme with glowing elements for a futuristic feel.
+         */
+
+        :root {
+            --neon-glow: #00ffff;
+            --background-color: #0c0c14;
+            --text-color: #e0e0e0;
+            --accent-color: #2a2a3a;
+            --glow-shadow: 0 0 5px var(--neon-glow), 0 0 10px var(--neon-glow), 0 0 20px #00aaff, 0 0 30px #00aaff;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        #visualizationCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, #1a1a2a 0%, var(--background-color) 70%);
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            padding: 2rem;
+            background: rgba(12, 12, 20, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+            max-width: 90%;
+            width: 600px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-glow);
+            text-shadow: var(--glow-shadow);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            max-width: 500px;
+            margin: 0 auto 1.5rem auto;
+            line-height: 1.6;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .control-group {
+            width: 100%;
+            text-align: left;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            color: var(--neon-glow);
+        }
+
+        #startButton {
+            font-family: 'Orbitron', sans-serif;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--background-color);
+            background-color: var(--neon-glow);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow-shadow);
+        }
+
+        #startButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--neon-glow), 0 0 20px var(--neon-glow), 0 0 40px #00aaff, 0 0 60px #00aaff;
+        }
+        
+        #startButton.hidden {
+            display: none;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--accent-color);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: var(--accent-color);
+            outline: none;
+            padding: 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-glow);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--neon-glow);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--neon-glow);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 1rem;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(224, 224, 224, 0.5);
+            font-weight: 500;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Section 1: Core HTML -->
+    <canvas id="visualizationCanvas"></canvas>
+
+    <div class="main-container">
+        <h1>Project Synesthesia</h1>
+        <p>A real-time, beat-responsive background system. Click start and play some music to begin the immersive visual experience.</p>
+
+        <div id="controls">
+            <button id="startButton">Start System</button>
+            <div id="ui-elements" class="hidden w-full flex flex-col gap-6">
+                <div class="control-group">
+                    <label for="sensitivity">Beat Sensitivity</label>
+                    <input type="range" id="sensitivity" min="1.0" max="2.0" value="1.3" step="0.05">
+                </div>
+                <div class="control-group">
+                    <label for="stylePreset">Visual Style</label>
+                    <select id="stylePreset">
+                        <option value="shockwave">Radial Shockwave</option>
+                        <option value="particle-field">Particle Field</option>
+                        <option value="nexus-pulse">Nexus Pulse</option>
+                        <option value="chroma-wave">Chroma Wave</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>Developed By: SANTHOSH_A | Project Synesthesia v1.0</footer>
+
+    <!-- Section 3: JavaScript Logic -->
+    <script>
+        /*
+         * Project Synesthesia: Core JavaScript Logic
+         * Version: 1.0
+         * Developer: SANTHOSH_A
+         * Date: August 26, 2025
+         * Description: This script handles the Web Audio API setup, FFT analysis,
+         * beat detection, and event-driven canvas visualizations.
+         * Frameworks: Native Canvas API, Web Audio API.
+         */
+
+        window.onload = () => {
+            // --- DOM Element References ---
+            const startButton = document.getElementById('startButton');
+            const uiElements = document.getElementById('ui-elements');
+            const canvas = document.getElementById('visualizationCanvas');
+            const ctx = canvas.getContext('2d');
+            const sensitivitySlider = document.getElementById('sensitivity');
+            const stylePresetSelector = document.getElementById('stylePreset');
+
+            // --- Audio Analysis Setup ---
+            let audioContext;
+            let analyser;
+            let source;
+            let frequencyData; // Uint8Array for frequency data
+            let beatDetection = {
+                bassHistory: new Array(60).fill(0), // History of bass levels
+                historyIndex: 0,
+                threshold: 1.1, // Dynamic threshold multiplier
+                lastBeatTime: 0,
+                cooldown: 200 // ms between beats
+            };
+
+            // --- Visualization State ---
+            let particles = [];
+            let shockwaves = [];
+            let currentStyle = 'shockwave';
+
+            // --- Canvas & Visualization Sizing ---
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                // Re-initialize particles on resize to fit new screen dimensions
+                if (currentStyle === 'particle-field' || currentStyle === 'nexus-pulse') {
+                    initParticles();
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // --- Main Initialization on User Interaction ---
+            startButton.addEventListener('click', async () => {
+                try {
+                    // 1. Setup Web Audio API
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 2. Capture Microphone Audio
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    source = audioContext.createMediaStreamSource(stream);
+                    
+                    // 3. Setup FFT Analyser
+                    analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 2048; // High resolution for frequency analysis
+                    analyser.smoothingTimeConstant = 0.8; // Smooths out the data
+                    
+                    const bufferLength = analyser.frequencyBinCount;
+                    frequencyData = new Uint8Array(bufferLength);
+                    
+                    // 4. Connect Audio Graph: Mic -> Analyser
+                    source.connect(analyser);
+                    
+                    // 5. Start the visualization loop
+                    renderFrame();
+
+                    // 6. Update UI
+                    startButton.classList.add('hidden');
+                    uiElements.classList.remove('hidden');
+                    document.querySelector('.main-container p').textContent = "System active. Audio input detected. Adjust controls below.";
+
+                } catch (err) {
+                    console.error("Error initializing audio:", err);
+                    alert("Could not access microphone. Please allow microphone access and try again.");
+                }
+            });
+
+            // --- UI Event Listeners ---
+            sensitivitySlider.addEventListener('input', (e) => {
+                beatDetection.threshold = parseFloat(e.target.value);
+            });
+
+            stylePresetSelector.addEventListener('change', (e) => {
+                currentStyle = e.target.value;
+                // Initialize specific assets for the new style if needed
+                if (currentStyle === 'particle-field' || currentStyle === 'nexus-pulse') {
+                    initParticles();
+                }
+            });
+
+            // --- Core Analysis & Beat Detection Loop ---
+            function analyzeAudio() {
+                analyser.getByteFrequencyData(frequencyData);
+
+                // Calculate average levels for different frequency bands
+                const bass = getFrequencyAverage(0, 100); // 0-100 Hz
+                const mids = getFrequencyAverage(400, 2000); // 400-2000 Hz
+                const treble = getFrequencyAverage(2000, 10000); // 2-10 kHz
+                const overallLevel = getFrequencyAverage(0, 14000);
+
+                // Beat Detection Algorithm (Dynamic Thresholding on Bass)
+                const historyAverage = beatDetection.bassHistory.reduce((a, b) => a + b, 0) / beatDetection.bassHistory.length;
+                
+                const currentTime = Date.now();
+                if (bass > historyAverage * beatDetection.threshold && (currentTime - beatDetection.lastBeatTime) > beatDetection.cooldown) {
+                    onBeat(bass);
+                    beatDetection.lastBeatTime = currentTime;
+                }
+
+                // Update history buffer
+                beatDetection.bassHistory[beatDetection.historyIndex] = bass;
+                beatDetection.historyIndex = (beatDetection.historyIndex + 1) % beatDetection.bassHistory.length;
+
+                return { bass, mids, treble, overallLevel };
+            }
+
+            // Helper to get average amplitude for a frequency range
+            function getFrequencyAverage(lowHz, highHz) {
+                const lowIndex = Math.floor(lowHz / (audioContext.sampleRate / analyser.fftSize));
+                const highIndex = Math.floor(highHz / (audioContext.sampleRate / analyser.fftSize));
+                let total = 0;
+                for (let i = lowIndex; i <= highIndex; i++) {
+                    total += frequencyData[i];
+                }
+                return total / (highIndex - lowIndex + 1);
+            }
+
+            // --- Event-Driven Visualization Triggers ---
+            function onBeat(intensity) {
+                // This function is called when a beat is detected.
+                // It triggers style-specific visual effects.
+                switch (currentStyle) {
+                    case 'shockwave':
+                        shockwaves.push(new Shockwave(canvas.width / 2, canvas.height / 2, intensity));
+                        break;
+                    case 'nexus-pulse':
+                        particles.forEach(p => p.pulse(intensity));
+                        break;
+                    case 'chroma-wave':
+                        // The wave itself reacts in the draw function, but a beat can add a flash
+                        shockwaves.push(new Shockwave(canvas.width / 2, canvas.height / 2, intensity, true));
+                        break;
+                }
+            }
+
+            // --- Visualization Drawing Functions ---
+            function renderFrame() {
+                requestAnimationFrame(renderFrame);
+
+                const audioLevels = analyzeAudio();
+
+                // Clear canvas with a subtle fade effect
+                ctx.fillStyle = `rgba(12, 12, 20, ${0.1 + (audioLevels.bass / 255) * 0.1})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Call the renderer for the currently selected style
+                switch (currentStyle) {
+                    case 'shockwave':
+                        drawShockwave(audioLevels);
+                        break;
+                    case 'particle-field':
+                        drawParticleField(audioLevels);
+                        break;
+                    case 'nexus-pulse':
+                        drawNexusPulse(audioLevels);
+                        break;
+                    case 'chroma-wave':
+                        drawChromaWave(audioLevels);
+                        break;
+                }
+            }
+
+            // --- Style 1: Radial Shockwave ---
+            class Shockwave {
+                constructor(x, y, intensity, isFlash = false) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = 20 + (intensity / 255) * 100;
+                    this.maxRadius = 300 + (intensity / 255) * 500;
+                    this.life = 1.0;
+                    this.hue = 180 + (intensity / 255) * 60; // Cyan to Blue
+                    this.isFlash = isFlash;
+                }
+                update() {
+                    this.life -= 0.02;
+                    this.radius += (this.maxRadius - this.radius) * 0.05;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `hsla(${this.hue}, 100%, 70%, ${this.life})`;
+                    ctx.lineWidth = this.isFlash ? 20 * this.life : 5;
+                    ctx.stroke();
+                }
+            }
+
+            function drawShockwave(audio) {
+                 // Update and draw existing shockwaves
+                for (let i = shockwaves.length - 1; i >= 0; i--) {
+                    shockwaves[i].update();
+                    shockwaves[i].draw();
+                    if (shockwaves[i].life <= 0) {
+                        shockwaves.splice(i, 1);
+                    }
+                }
+                
+                // Draw a central glowing orb reacting to overall volume
+                const orbRadius = 50 + (audio.overallLevel / 255) * 100;
+                const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, orbRadius);
+                const hue = 180 + (audio.bass / 255) * 40;
+                gradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.5)`);
+                gradient.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // --- Style 2 & 3: Particle Systems ---
+            class Particle {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.baseX = x;
+                    this.baseY = y;
+                    this.size = Math.random() * 2 + 1;
+                    this.density = (Math.random() * 30) + 1;
+                    this.pulseSize = 0;
+                }
+                update(audio) {
+                    // Particle field logic: move based on treble
+                    if (currentStyle === 'particle-field') {
+                        let displacement = (audio.treble / 255) * 10;
+                        this.y = this.baseY + Math.sin(this.x * 0.1 + Date.now() * 0.001) * displacement;
+                    }
+                    if (this.pulseSize > 0) this.pulseSize -= 0.5;
+                }
+                pulse(intensity) {
+                    this.pulseSize = 10 + (intensity / 255) * 15;
+                }
+                draw(audio) {
+                    const hue = 180 + (audio.mids / 255) * 100; // Mids control color
+                    ctx.fillStyle = `hsl(${hue}, 100%, 70%)`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size + this.pulseSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                const particleCount = window.innerWidth > 768 ? 150 : 75;
+                for (let i = 0; i < particleCount; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    particles.push(new Particle(x, y));
+                }
+            }
+
+            function drawParticleField(audio) {
+                particles.forEach(p => {
+                    p.update(audio);
+                    p.draw(audio);
+                });
+            }
+
+            function drawNexusPulse(audio) {
+                particles.forEach(p => {
+                    p.update(audio);
+                    p.draw(audio);
+                });
+
+                // Connect nearby particles with lines
+                for (let a = 0; a < particles.length; a++) {
+                    for (let b = a; b < particles.length; b++) {
+                        const dx = particles[a].x - particles[b].x;
+                        const dy = particles[a].y - particles[b].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            const opacity = 1 - (distance / 120);
+                            const hue = 180 + (audio.bass / 255) * 60;
+                            ctx.strokeStyle = `hsla(${hue}, 100%, 70%, ${opacity * 0.5})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[a].x, particles[a].y);
+                            ctx.lineTo(particles[b].x, particles[b].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            // --- Style 4: Chroma Wave ---
+            function drawChromaWave(audio) {
+                // Update and draw flash effect on beat
+                for (let i = shockwaves.length - 1; i >= 0; i--) {
+                    shockwaves[i].update();
+                    shockwaves[i].draw();
+                    if (shockwaves[i].life <= 0) {
+                        shockwaves.splice(i, 1);
+                    }
+                }
+                
+                const bufferLength = analyser.frequencyBinCount;
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = frequencyData[i] * 2;
+                    
+                    const hue = (i / bufferLength) * 360 + (audio.bass / 255 * 50);
+                    const saturation = 100;
+                    const lightness = 50 + (frequencyData[i] / 255) * 20;
+
+                    ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                    ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
+            }
+        };
+    </script>
+</body>
+</html>
