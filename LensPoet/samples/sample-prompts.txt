@@ -1,0 +1,15 @@
+Background change (example):
+Subject: A man stands on a busy city street.
+Prompt: Replace the city with a vast, empty beach at golden hour, keeping the man centered.
+
+Object removal (example):
+Subject: Portrait with phone on table.
+Prompt: From the polished wood table, erase the small, silver phone, leaving no trace.
+
+Mood & lighting (example):
+Subject: A garden photo.
+Prompt: Transform the scene to a misty morning, with soft, diffused light, and intensify the greens of the foliage.
+
+Stylistic filter (example):
+Subject: Standard portrait.
+Prompt: Render this portrait in the style of an old, faded photograph, with a sepia tone and grainy texture.

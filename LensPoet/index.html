@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LensPoet — Client-side Image Editor</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="description" content="Free, offline, privacy-friendly image editor with client-side AI-like tools. No uploads, no paid APIs."/>
+</head>
+<body>
+  <header class="topbar" role="banner" aria-label="Application Header">
+    <div class="brand">
+      <span class="logo">🎨</span>
+      <h1 aria-label="App name">LensPoet</h1>
+      <span class="tagline">Client-side Image Editor</span>
+    </div>
+
+    <div class="top-actions">
+      <label class="file-btn" aria-label="Open image">
+        <input type="file" id="fileInput" accept="image/*" />
+        Open
+      </label>
+      <button id="btnSave" class="primary" aria-label="Export image (S)">Export</button>
+      <button id="btnUndo" aria-label="Undo (Ctrl+Z)">Undo</button>
+      <button id="btnRedo" aria-label="Redo (Ctrl+Shift+Z)">Redo</button>
+      <button id="btnHelp" aria-haspopup="dialog" aria-controls="helpModal">Help</button>
+    </div>
+
+    <div class="status">
+      <span id="cvStatus" class="badge">CV: not loaded</span>
+      <label class="switch" title="Lightweight mode (disable heavy features)">
+        <input type="checkbox" id="toggleLightweight" />
+        <span class="slider" aria-label="Lightweight mode"></span>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="Tools Sidebar">
+      <section class="panel">
+        <h2>Canvas</h2>
+        <div class="grid-2">
+          <button id="btnFit" aria-label="Fit to screen">Fit</button>
+          <button id="btnActual" aria-label="Actual size">1:1</button>
+        </div>
+        <div class="grid-2">
+          <button id="btnResetAll" title="Reset all edits">Reset</button>
+          <button id="btnSaveSession" title="Save session to browser">Save Session</button>
+        </div>
+        <div class="grid-1">
+          <label class="checkbox">
+            <input type="checkbox" id="chkAutosave" />
+            Autosave session
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Crop & Resize</h2>
+        <div class="stack">
+          <div class="grid-2">
+            <button id="btnCrop" aria-label="Crop tool (C)">Crop</button>
+            <button id="btnResize">Resize</button>
+          </div>
+          <label>Aspect
+            <select id="cropAspect">
+              <option value="free">Free</option>
+              <option value="1:1">1:1</option>
+              <option value="4:3">4:3</option>
+              <option value="3:2">3:2</option>
+              <option value="16:9">16:9</option>
+              <option value="A4">A4 (210x297)</option>
+            </select>
+          </label>
+          <div id="resizeRow" class="grid-3">
+            <label>W <input type="number" id="resizeW" min="1" /></label>
+            <label>H <input type="number" id="resizeH" min="1" /></label>
+            <label class="checkbox"><input type="checkbox" id="resizeKeep" checked/> Lock ratio</label>
+          </div>
+          <div class="grid-2">
+            <button id="btnCropApply" class="primary">Apply</button>
+            <button id="btnCropCancel">Cancel</button>
+          </div>
+          <small class="hint">Drag to crop — press Enter to apply, Esc to cancel.</small>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Rotate & Straighten</h2>
+        <label>Angle
+          <input type="range" id="rotateSlider" min="-45" max="45" value="0" step="0.1"/>
+        </label>
+        <div class="grid-2">
+          <label class="checkbox"><input type="checkbox" id="chkAutoCrop" checked/> Auto-crop</label>
+          <label class="checkbox"><input type="checkbox" id="chkTransparentRotate" checked/> Use transparency</label>
+        </div>
+        <div class="grid-2">
+          <button id="btnRotateLeft">-90°</button>
+          <button id="btnRotateRight">+90°</button>
+        </div>
+        <button id="btnRotateApply" class="primary">Apply</button>
+      </section>
+
+      <section class="panel">
+        <h2>Exposure & Color</h2>
+        <div class="stack sliders">
+          <label>Exposure <input type="range" id="sExposure" min="-2" max="2" step="0.01" value="0"/></label>
+          <label>Contrast <input type="range" id="sContrast" min="-1" max="1" step="0.01" value="0"/></label>
+          <label>Saturation <input type="range" id="sSaturation" min="-1" max="1" step="0.01" value="0"/></label>
+          <label>Vibrance <input type="range" id="sVibrance" min="-1" max="1" step="0.01" value="0"/></label>
+          <label>Temperature <input type="range" id="sTemp" min="-1" max="1" step="0.01" value="0"/></label>
+          <label>Tint <input type="range" id="sTint" min="-1" max="1" step="0.01" value="0"/></label>
+        </div>
+        <div class="grid-2">
+          <button id="btnAdjApply" class="primary">Apply</button>
+          <button id="btnAdjReset">Reset</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Sharpen & Blur</h2>
+        <label>Sharpen <input type="range" id="sSharpen" min="0" max="2" step="0.01" value="0"/></label>
+        <label>Gaussian Blur <input type="range" id="sBlur" min="0" max="20" step="0.1" value="0"/></label>
+        <div class="grid-2">
+          <button id="btnSharpBlurApply" class="primary">Apply</button>
+          <button id="btnSharpBlurReset">Reset</button>
+        </div>
+        <small class="hint">Tip: Try a tiny blur then a moderate sharpen for natural detail.</small>
+      </section>
+
+      <section class="panel">
+        <h2>Filters & Presets</h2>
+        <div id="presetStrip" class="preset-strip" role="list" aria-label="Filter presets"></div>
+        <div class="grid-2">
+          <button id="btnApplyPreset" class="primary">Apply Selected</button>
+          <button id="btnResetPreset">Clear</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Background Removal</h2>
+        <div class="grid-2">
+          <button id="btnBgAuto">Auto</button>
+          <button id="btnBgColorPick">Pick BG</button>
+        </div>
+        <div class="grid-2">
+          <button id="btnBgFGRect">FG Rect</button>
+          <button id="btnBgRefine">Refine Brush</button>
+        </div>
+        <label>Brush Size <input type="range" id="bgBrushSize" min="5" max="200" value="50"/></label>
+        <label>Softness <input type="range" id="bgBrushSoft" min="0" max="1" step="0.05" value="0.5"/></label>
+        <div class="grid-2">
+          <button id="btnBgApplyTransparent" class="primary">Apply Transparent</button>
+          <button id="btnBgReplace">Replace BG</button>
+        </div>
+        <input type="color" id="bgColor" value="#ffffff" title="Background color"/>
+        <label class="file-btn small">Upload BG
+          <input type="file" id="bgUpload" accept="image/*"/>
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2>Object Removal</h2>
+        <div class="grid-2">
+          <button id="btnObjectBrush">Selection Brush</button>
+          <button id="btnObjectClear">Clear Mask</button>
+        </div>
+        <label>Brush Size <input type="range" id="objBrushSize" min="5" max="200" value="40"/></label>
+        <label>Softness <input type="range" id="objBrushSoft" min="0" max="1" step="0.05" value="0.5"/></label>
+        <div class="grid-2">
+          <button id="btnInpaintPreview">Preview</button>
+          <button id="btnInpaintApply" class="primary">Apply</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Extend & Enhance</h2>
+        <label>Extend (px, top/right/bottom/left)</label>
+        <div class="grid-4">
+          <input type="number" id="extTop" value="0" min="0"/>
+          <input type="number" id="extRight" value="0" min="0"/>
+          <input type="number" id="extBottom" value="0" min="0"/>
+          <input type="number" id="extLeft" value="0" min="0"/>
+        </div>
+        <div class="grid-2">
+          <button id="btnExtendPreview">Preview</button>
+          <button id="btnExtendApply" class="primary">Apply</button>
+        </div>
+        <hr />
+        <h3>Smart Enhance</h3>
+        <label class="checkbox"><input type="checkbox" id="chkDenoise" checked/> Denoise</label>
+        <label class="checkbox"><input type="checkbox" id="chkUnsharp" checked/> Sharpen</label>
+        <label>Upscale
+          <select id="selUpscale">
+            <option value="1">1x</option>
+            <option value="2">2x (Lanczos)</option>
+            <option value="4">4x (Lanczos)</option>
+          </select>
+        </label>
+        <button id="btnEnhance" class="primary">Run</button>
+      </section>
+
+      <section class="panel">
+        <h2>AI Prompt (poem or manual)</h2>
+        <textarea id="promptInput" rows="5" placeholder="Subject → Details → Style → Action"></textarea>
+        <button id="btnUsePrompt" class="primary">Use Prompt</button>
+        <details class="prompt-examples">
+          <summary>Examples</summary>
+          <ul>
+            <li>Replace the city with a vast, empty beach at golden hour, keeping the man centered.</li>
+            <li>From the polished wood table, erase the small, silver phone, leaving no trace.</li>
+            <li>Transform the scene to a misty morning, with soft, diffused light, and intensify the greens of the foliage.</li>
+            <li>Render this portrait in the style of an old, faded photograph, with a sepia tone and grainy texture.</li>
+          </ul>
+        </details>
+        <div id="promptPlan" class="prompt-plan" aria-live="polite"></div>
+      </section>
+    </aside>
+
+    <section class="canvas-area" aria-label="Canvas Workspace">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="mainCanvas" aria-label="Main image canvas"></canvas>
+        <canvas id="overlayCanvas" aria-hidden="true"></canvas>
+        <canvas id="maskCanvas" aria-hidden="true"></canvas>
+      </div>
+      <div id="spinner" class="spinner hidden" role="status" aria-live="assertive">
+        <div class="loader"></div>
+        <span>Processing…</span>
+      </div>
+      <div id="toast" class="toast" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div>Developed By SANTHOSH_A</div>
+    <div><span id="liveDate"></span> — <span id="liveTime"></span></div>
+  </footer>
+
+  <!-- Export Modal -->
+  <dialog id="exportModal" class="modal" aria-label="Export options">
+    <form method="dialog" class="modal-inner">
+      <h2>Export</h2>
+      <label>Format
+        <select id="expFormat">
+          <option value="png">PNG (transparent)</option>
+          <option value="jpeg">JPEG</option>
+        </select>
+      </label>
+      <label id="expQualityRow">JPEG Quality <input type="range" id="expQuality" min="0.1" max="1" step="0.01" value="0.92"/></label>
+      <label>Size
+        <select id="expSize">
+          <option value="current">Current</option>
+          <option value="fit-1080">Fit 1080p</option>
+          <option value="fit-1440">Fit 1440p</option>
+          <option value="fit-2160">Fit 4K</option>
+        </select>
+      </label>
+      <div class="grid-2">
+        <button id="btnDoExport" class="primary">Download</button>
+        <button id="btnExportCancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Help Modal -->
+  <dialog id="helpModal" class="modal" aria-label="Help">
+    <form method="dialog" class="modal-inner">
+      <h2>Help & Shortcuts</h2>
+      <p>Everything runs in your browser. No uploads, no paid APIs. Heavy features (background removal, object removal) use OpenCV.js loaded locally or from CDN (optional).</p>
+      <h3>Poem-style Prompts</h3>
+      <ul>
+        <li>Background change: “Replace the city with a vast, empty beach at golden hour, keeping the man centered.”</li>
+        <li>Object removal: “From the polished wood table, erase the small, silver phone, leaving no trace.”</li>
+        <li>Mood & lighting: “Transform the scene to a misty morning, with soft, diffused light, and intensify the greens of the foliage.”</li>
+        <li>Stylistic: “Render this portrait in the style of an old, faded photograph, with a sepia tone and grainy texture.”</li>
+      </ul>
+      <h3>Shortcuts</h3>
+      <ul class="mono">
+        <li>C — Crop</li>
+        <li>Ctrl+Z — Undo</li>
+        <li>Ctrl+Shift+Z — Redo</li>
+        <li>S — Export</li>
+        <li>Enter — Apply current tool</li>
+        <li>Esc — Cancel current tool</li>
+      </ul>
+      <p class="small">Limitations: Client-side segmentation and inpainting work best on simple backgrounds and small objects. Results may vary.</p>
+      <div class="grid-2">
+        <button id="btnHelpClose">Close</button>
+        <button id="btnOpenSamples" type="button">Load Sample</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- OpenCV: Attempt local vendor first; fallback to CDN if not found -->
+  <script>
+    window.__NEED_CV__ = true;
+  </script>
+  <script src="app.js" defer></script>
+</body>
+</html>

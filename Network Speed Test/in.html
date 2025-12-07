@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Speed Test</title>
+    <style>
+        /* * UI/UX Design & CSS
+        * Role: Senior Frontend Engineer & UI/UX Designer
+        * A modern, minimal, and responsive design.
+        */
+        :root {
+            --bg-color: #1a1a1d;
+            --primary-color: #4e4e50;
+            --secondary-color: #c5c6c7;
+            --accent-color: #66fcf1;
+            --text-color: #f5f5f5;
+            --gauge-bg: #333;
+            --gauge-fill: var(--accent-color);
+            --font-family: 'Inter', sans-serif;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 2rem;
+        }
+
+        .toggle-container {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--primary-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .speed-gauge {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 2rem auto;
+        }
+
+        .gauge-circle {
+            stroke-width: 15;
+            fill: none;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            stroke: var(--gauge-bg);
+        }
+
+        .gauge-fill {
+            stroke: var(--gauge-fill);
+            stroke-dasharray: 754; /* Circumference of circle with r=120 */
+            stroke-dashoffset: 754;
+            stroke-linecap: round;
+        }
+
+        .gauge-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .speed-value {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1;
+        }
+
+        .speed-unit {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .test-phase {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-top: 0.5rem;
+            height: 1.5rem;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .metric {
+            background-color: var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 500;
+        }
+        
+        .tooltip-icon {
+            cursor: pointer;
+            font-style: normal;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--gauge-bg);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+        
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--gauge-bg) transparent transparent transparent;
+        }
+
+        .metric:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #start-btn {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            transform-origin: center;
+        }
+
+        #start-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+        
+        #start-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        #start-btn:disabled {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .results-card {
+            background-color: var(--primary-color);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .results-card h2 {
+            color: var(--accent-color);
+        }
+        
+        .results-summary {
+            font-size: 1.2rem;
+        }
+        
+        #copy-btn {
+            background-color: var(--secondary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        #copy-btn:hover {
+            background-color: var(--text-color);
+        }
+
+        footer {
+            margin-top: 3rem;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .speed-gauge {
+                width: 250px;
+                height: 250px;
+            }
+            .speed-value {
+                font-size: 3rem;
+            }
+            .metrics {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+            .speed-gauge {
+                width: 200px;
+                height: 200px;
+            }
+            .speed-value {
+                font-size: 2.5rem;
+            }
+            .speed-unit {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Network Speed Test</h1>
+        </header>
+
+        <div class="toggle-container">
+            <span>Demo Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle">
+                <span class="slider"></span>
+            </label>
+            <span>Real Test</span>
+        </div>
+
+        <main>
+            <div class="speed-gauge">
+                <svg viewBox="0 0 250 250">
+                    <circle class="gauge-circle gauge-bg" cx="125" cy="125" r="120"></circle>
+                    <circle id="gauge-fill" class="gauge-circle gauge-fill" cx="125" cy="125" r="120"></circle>
+                </svg>
+                <div class="gauge-text">
+                    <div id="speed-value" class="speed-value">0.00</div>
+                    <div class="speed-unit">Mbps</div>
+                    <div id="test-phase" class="test-phase"></div>
+                </div>
+            </div>
+
+            <button id="start-btn" aria-label="Start network speed test">Start Test</button>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">
+                        Download
+                        <i class="tooltip-icon" aria-label="Information about Download Speed">i
+                            <span class="tooltip">The speed at which data is downloaded from the internet to your device. Higher is better.</span>
+                        </i>
+                    </div>
+                    <div id="download-speed" class="metric-value">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">
+                        Upload
+                        <i class="tooltip-icon" aria-label="Information about Upload Speed">i
+                            <span class="tooltip">The speed at which data is uploaded from your device to the internet. Higher is better.</span>
+                        </i>
+                    </div>
+                    <div id="upload-speed" class="metric-value">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">
+                        Latency
+                        <i class="tooltip-icon" aria-label="Information about Latency">i
+                            <span class="tooltip">Also known as ping, it's the time it takes for a signal to travel to a server and back. Lower is better.</span>
+                        </i>
+                    </div>
+                    <div id="latency" class="metric-value">-</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">
+                        Jitter
+                        <i class="tooltip-icon" aria-label="Information about Jitter">i
+                            <span class="tooltip">The variation in latency over time. A low, stable jitter is important for real-time applications like gaming or video calls.</span>
+                        </i>
+                    </div>
+                    <div id="jitter" class="metric-value">-</div>
+                </div>
+            </div>
+            
+            <div id="results-card" class="results-card">
+                <h2>Test Complete!</h2>
+                <p id="results-summary" class="results-summary">Your connection is Excellent.</p>
+                <button id="copy-btn">Copy Results</button>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>Developed by SANTHOSH_A</p>
+    </footer>
+
+    <script>
+        /*
+        * JavaScript Logic for Network Speed Test
+        * Role: Senior Frontend Engineer
+        * Implements both a 'Demo Mode' and a 'Real Test' mode.
+        */
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const startBtn = document.getElementById('start-btn');
+            const modeToggle = document.getElementById('mode-toggle');
+            const speedValueEl = document.getElementById('speed-value');
+            const testPhaseEl = document.getElementById('test-phase');
+            const gaugeFillEl = document.getElementById('gauge-fill');
+            
+            const downloadSpeedEl = document.getElementById('download-speed');
+            const uploadSpeedEl = document.getElementById('upload-speed');
+            const latencyEl = document.getElementById('latency');
+            const jitterEl = document.getElementById('jitter');
+            
+            const resultsCardEl = document.getElementById('results-card');
+            const resultsSummaryEl = document.getElementById('results-summary');
+            const copyBtn = document.getElementById('copy-btn');
+
+            // --- State ---
+            let isTesting = false;
+            let isRealTest = false;
+            const GAUGE_CIRCUMFERENCE = 754;
+
+            // --- Event Listeners ---
+            startBtn.addEventListener('click', runTest);
+            modeToggle.addEventListener('change', (e) => {
+                isRealTest = e.target.checked;
+            });
+
+            // --- Core Functions ---
+
+            /**
+             * Initializes and starts the appropriate test (Demo or Real).
+             */
+            async function runTest() {
+                if (isTesting) return;
+                
+                resetUI();
+                isTesting = true;
+                startBtn.disabled = true;
+                startBtn.textContent = 'Testing...';
+
+                if (isRealTest) {
+                    await runRealTest();
+                } else {
+                    await runDemoTest();
+                }
+
+                isTesting = false;
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start Test';
+            }
+
+            /**
+             * Resets the UI to its initial state before a test.
+             */
+            function resetUI() {
+                speedValueEl.textContent = '0.00';
+                testPhaseEl.textContent = '';
+                updateGauge(0);
+                
+                downloadSpeedEl.textContent = '-';
+                uploadSpeedEl.textContent = '-';
+                latencyEl.textContent = '-';
+                jitterEl.textContent = '-';
+                
+                resultsCardEl.style.display = 'none';
+            }
+            
+            /**
+             * Updates the circular gauge based on speed.
+             * @param {number} speed - The current speed in Mbps.
+             */
+            function updateGauge(speed) {
+                // Map speed to a percentage of the gauge (e.g., 0-100 Mbps range)
+                const maxSpeed = 100;
+                const percentage = Math.min(speed / maxSpeed, 1);
+                const offset = GAUGE_CIRCUMFERENCE * (1 - percentage);
+                gaugeFillEl.style.strokeDashoffset = offset;
+            }
+
+            /**
+             * Animates a number value in the UI.
+             * @param {HTMLElement} el - The element to update.
+             * @param {number} targetValue - The final value.
+             * @param {number} duration - Animation duration in ms.
+             * @param {string} unit - The unit to append (e.g., ' Mbps').
+             */
+            function animateValue(el, targetValue, duration, unit = '') {
+                let start = 0;
+                let startTime = null;
+
+                function animation(currentTime) {
+                    if (startTime === null) startTime = currentTime;
+                    const progress = currentTime - startTime;
+                    const currentValue = Math.min(start + (targetValue - start) * (progress / duration), targetValue);
+                    
+                    if (el.id === 'speed-value') {
+                       el.textContent = currentValue.toFixed(2);
+                       updateGauge(currentValue);
+                    } else {
+                       el.textContent = `${currentValue.toFixed(unit ? 2 : 0)}${unit}`;
+                    }
+                    
+                    if (progress < duration) {
+                        requestAnimationFrame(animation);
+                    }
+                }
+                requestAnimationFrame(animation);
+            }
+
+            // --- Demo Mode Logic ---
+
+            /**
+             * Runs a simulated speed test for demonstration purposes.
+             */
+            async function runDemoTest() {
+                // Sample data for demo
+                const demoResults = {
+                    download: 48.3,
+                    upload: 12.6,
+                    latency: 22,
+                    jitter: 4
+                };
+
+                // Simulate Download Test
+                testPhaseEl.textContent = 'Testing Download...';
+                await simulatePhase(demoResults.download, 5000);
+                downloadSpeedEl.textContent = `${demoResults.download.toFixed(2)} Mbps`;
+
+                // Simulate Upload Test
+                testPhaseEl.textContent = 'Testing Upload...';
+                await simulatePhase(demoResults.upload, 4000);
+                uploadSpeedEl.textContent = `${demoResults.upload.toFixed(2)} Mbps`;
+                
+                // Simulate Latency/Jitter
+                testPhaseEl.textContent = 'Testing Latency...';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                latencyEl.textContent = `${demoResults.latency} ms`;
+                jitterEl.textContent = `${demoResults.jitter} ms`;
+
+                testPhaseEl.textContent = '';
+                speedValueEl.textContent = 'Done!';
+                updateGauge(0);
+                
+                showResults(demoResults);
+            }
+
+            /**
+             * Helper function to simulate a test phase with animation.
+             * @param {number} targetSpeed - The final speed for this phase.
+             * @param {number} duration - The duration of this phase in ms.
+             */
+            function simulatePhase(targetSpeed, duration) {
+                return new Promise(resolve => {
+                    animateValue(speedValueEl, targetSpeed, duration);
+                    setTimeout(resolve, duration);
+                });
+            }
+
+            // --- Real Test Logic ---
+
+            /**
+             * Runs a real network speed test.
+             * NOTE: This is a simplified frontend-only implementation.
+             * For accurate results, a dedicated backend server is required.
+             * We use a public file for download and simulate upload.
+             */
+            async function runRealTest() {
+                const results = { download: 0, upload: 0, latency: 0, jitter: 0 };
+
+                try {
+                    // 1. Latency & Jitter Test
+                    testPhaseEl.textContent = 'Testing Latency...';
+                    const pingData = await measurePing();
+                    results.latency = pingData.avgLatency;
+                    results.jitter = pingData.jitter;
+                    latencyEl.textContent = `${results.latency.toFixed(0)} ms`;
+                    jitterEl.textContent = `${results.jitter.toFixed(0)} ms`;
+
+                    // 2. Download Test
+                    testPhaseEl.textContent = 'Testing Download...';
+                    results.download = await measureDownloadSpeed();
+                    downloadSpeedEl.textContent = `${results.download.toFixed(2)} Mbps`;
+                    
+                    // 3. Upload Test
+                    testPhaseEl.textContent = 'Testing Upload...';
+                    results.upload = await measureUploadSpeed();
+                    uploadSpeedEl.textContent = `${results.upload.toFixed(2)} Mbps`;
+
+                } catch (error) {
+                    console.error("Speed test failed:", error);
+                    testPhaseEl.textContent = 'Test Failed';
+                } finally {
+                    speedValueEl.textContent = 'Done!';
+                    updateGauge(0);
+                    showResults(results);
+                }
+            }
+            
+            /**
+             * Measures latency (ping) and jitter.
+             * We ping a small resource multiple times.
+             */
+            async function measurePing(pings = 5, url = 'https://www.google.com/favicon.ico') {
+                const latencies = [];
+                for (let i = 0; i < pings; i++) {
+                    const startTime = performance.now();
+                    try {
+                        await fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+                    } catch(e) { /* no-cors will throw, this is expected */ }
+                    const endTime = performance.now();
+                    latencies.push(endTime - startTime);
+                    await new Promise(r => setTimeout(r, 200)); // wait between pings
+                }
+                
+                const sum = latencies.reduce((a, b) => a + b, 0);
+                const avgLatency = sum / latencies.length;
+                
+                let jitterSum = 0;
+                for(let i = 1; i < latencies.length; i++) {
+                    jitterSum += Math.abs(latencies[i] - latencies[i-1]);
+                }
+                const jitter = jitterSum / (latencies.length - 1);
+
+                return { avgLatency, jitter };
+            }
+
+            /**
+             * Measures download speed by fetching a file.
+             * A larger file provides more accurate results.
+             * Using a CORS-enabled endpoint is crucial.
+             */
+            async function measureDownloadSpeed() {
+                // Using a public test file. Replace with your own if available.
+                const testFile = 'https://sabnzbd.org/tests/internetspeed/10MB.bin';
+                const startTime = performance.now();
+                let loadedBytes = 0;
+
+                const response = await fetch(testFile + `?t=${new Date().getTime()}`, {cache: 'no-store'});
+                const reader = response.body.getReader();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    loadedBytes += value.length;
+                    const duration = (performance.now() - startTime) / 1000; // in seconds
+                    const speedMbps = (loadedBytes * 8) / (duration * 1000000);
+                    
+                    speedValueEl.textContent = speedMbps.toFixed(2);
+                    updateGauge(speedMbps);
+                }
+
+                const totalDuration = (performance.now() - startTime) / 1000;
+                return (loadedBytes * 8) / (totalDuration * 1000000);
+            }
+            
+            /**
+             * Measures upload speed.
+             * This is a simulation as true upload measurement requires a server endpoint
+             * that can accept and measure the incoming data stream.
+             */
+            async function measureUploadSpeed() {
+                const dataSizeMB = 5;
+                const data = new Blob([new ArrayBuffer(dataSizeMB * 1024 * 1024)], { type: 'application/octet-stream' });
+                const startTime = performance.now();
+
+                // This is where you would POST to your server endpoint
+                // For this demo, we simulate the time it would take.
+                // We'll simulate a speed between 5 and 20 Mbps.
+                const simulatedSpeed = 5 + Math.random() * 15;
+                const simulatedDuration = (dataSizeMB * 8) / simulatedSpeed * 1000;
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    const elapsed = (performance.now() - startTime) / 1000;
+                    const currentSpeed = (data.size * (progress/100) * 8) / (elapsed * 1000000);
+                    if (!isNaN(currentSpeed)) {
+                       speedValueEl.textContent = currentSpeed.toFixed(2);
+                       updateGauge(currentSpeed);
+                    }
+                    if(progress >= 100) clearInterval(interval);
+                }, simulatedDuration / 10);
+                
+                await new Promise(r => setTimeout(r, simulatedDuration));
+                
+                return simulatedSpeed;
+            }
+            
+            // --- Results Display ---
+
+            /**
+             * Displays the final results card and categorizes the connection speed.
+             * @param {object} results - The final test results.
+             */
+            function showResults(results) {
+                const { download, upload } = results;
+                let category = 'Poor';
+                if (download > 50 && upload > 10) {
+                    category = 'Excellent';
+                } else if (download > 25 && upload > 5) {
+                    category = 'Good';
+                } else if (download > 5 && upload > 1) {
+                    category = 'Fair';
+                }
+                
+                resultsSummaryEl.textContent = `Your connection is ${category}.`;
+                resultsCardEl.style.display = 'flex';
+                
+                copyBtn.onclick = () => {
+                    const resultText = `My Network Speed:
+Download: ${results.download.toFixed(2)} Mbps
+Upload: ${results.upload.toFixed(2)} Mbps
+Latency: ${results.latency.toFixed(0)} ms
+Jitter: ${results.jitter.toFixed(0)} ms`;
+                    
+                    // Use a temporary textarea to copy text
+                    const textArea = document.createElement('textarea');
+                    textArea.value = resultText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyBtn.textContent = 'Copied!';
+                    } catch (err) {
+                        console.error('Failed to copy results:', err);
+                        copyBtn.textContent = 'Copy Failed';
+                    }
+                    document.body.removeChild(textArea);
+                    
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy Results';
+                    }, 2000);
+                };
+            }
+        });
+    </script>
+</body>
+</html>

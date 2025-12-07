@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Business CRM & Contact Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Workspace Selection Screen -->
+    <div id="workspace-selection" class="workspace-selection">
+        <div class="container">
+            <div class="workspace-selection__header">
+                <h1>Multi-Business CRM</h1>
+                <p>Select your workspace to get started</p>
+            </div>
+            <div class="workspace-grid">
+                <div class="workspace-card workspace-card--astrology" data-workspace="astrology">
+                    <div class="workspace-card__icon">✨</div>
+                    <h3>Astrology Business</h3>
+                    <p>Manage your astrology clients, readings, and consultations</p>
+                </div>
+                <div class="workspace-card workspace-card--electrical" data-workspace="electrical">
+                    <div class="workspace-card__icon">⚡</div>
+                    <h3>Electrical Services</h3>
+                    <p>Track electrical projects, installations, and clients</p>
+                </div>
+                <div class="workspace-card workspace-card--family" data-workspace="family">
+                    <div class="workspace-card__icon">👨‍👩‍👧‍👦</div>
+                    <h3>Family Contacts</h3>
+                    <p>Keep track of family members and personal contacts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="workspace-info">
+                        <div class="workspace-icon" id="current-workspace-icon">✨</div>
+                        <div class="workspace-details">
+                            <h2 id="current-workspace-name">Astrology Business</h2>
+                            <button class="btn--sm btn--outline" id="switch-workspace">Switch Workspace</button>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn--primary" id="quick-add">+ Quick Add</button>
+                        <div class="search-container">
+                            <input type="text" class="form-control" id="global-search" placeholder="Search contacts, jobs...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <div class="container">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+                    <button class="nav-tab" data-tab="contacts">Contacts</button>
+                    <button class="nav-tab" data-tab="jobs" id="jobs-tab">Jobs</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="container">
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content active">
+                    <div class="dashboard-widgets">
+                        <div class="widget-grid">
+                            <div class="widget card">
+                                <div class="widget__header">
+                                    <h3>Today's Tasks</h3>
+                                </div>
+                                <div class="widget__body">
+                                    <div class="stat-value" id="todays-tasks">0</div>
+                                    <div class="stat-label">Tasks scheduled today</div>
+                                </div>
+                            </div>
+                            
+                            <div class="widget card" id="active-jobs-widget">
+                                <div class="widget__header">
+                                    <h3>Active Jobs</h3>
+                                </div>
+                                <div class="widget__body">
+                                    <div class="stat-value" id="active-jobs">0</div>
+                                    <div class="stat-label">Jobs in progress</div>
+                                </div>
+                            </div>
+
+                            <div class="widget card" id="pending-payments-widget">
+                                <div class="widget__header">
+                                    <h3>Pending Payments</h3>
+                                </div>
+                                <div class="widget__body">
+                                    <div class="stat-value" id="pending-payments">0</div>
+                                    <div class="stat-label">Overdue payments</div>
+                                </div>
+                            </div>
+
+                            <div class="widget card chart-widget" id="stats-chart-widget">
+                                <div class="widget__header">
+                                    <h3>Monthly Progress</h3>
+                                </div>
+                                <div class="widget__body">
+                                    <div class="chart-container" style="position: relative; height: 200px;">
+                                        <canvas id="monthly-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recent-activity card">
+                            <div class="card__header">
+                                <h3>Recent Activity</h3>
+                            </div>
+                            <div class="card__body">
+                                <div id="recent-activity-list" class="activity-list">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacts Tab -->
+                <div id="contacts-tab" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Contacts</h2>
+                        <button class="btn btn--primary" id="add-contact">+ Add Contact</button>
+                    </div>
+                    <div class="contacts-list" id="contacts-list">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Jobs Tab -->
+                <div id="jobs-tab-content" class="tab-content">
+                    <div class="tab-header">
+                        <h2>Jobs</h2>
+                        <button class="btn btn--primary" id="add-job">+ Add Job</button>
+                    </div>
+                    <div class="jobs-list" id="jobs-list">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="contact-modal-title">Add Contact</h3>
+                <button class="modal-close" data-modal="contact-modal">&times;</button>
+            </div>
+            <form id="contact-form" class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="contact-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="contact-phone" required>
+                </div>
+                <div class="form-group" id="contact-email-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="contact-email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" id="contact-address" rows="2"></textarea>
+                </div>
+                <div class="form-group" id="contact-source-group">
+                    <label class="form-label">Source</label>
+                    <select class="form-control" id="contact-source">
+                        <option value="Referral">Referral</option>
+                        <option value="Website">Website</option>
+                        <option value="Direct Call">Direct Call</option>
+                    </select>
+                </div>
+                <div class="form-group" id="contact-status-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" id="contact-status">
+                        <option value="Lead">Lead</option>
+                        <option value="Active Client">Active Client</option>
+                        <option value="Past Client">Past Client</option>
+                    </select>
+                </div>
+                <div class="form-group" id="contact-relationship-group">
+                    <label class="form-label">Relationship</label>
+                    <input type="text" class="form-control" id="contact-relationship" placeholder="e.g., Mother, Uncle, Cousin">
+                </div>
+                <div class="form-group" id="contact-birthday-group">
+                    <label class="form-label">Birthday</label>
+                    <input type="date" class="form-control" id="contact-birthday">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--secondary" data-modal="contact-modal">Cancel</button>
+                <button type="submit" form="contact-form" class="btn btn--primary">Save Contact</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Modal -->
+    <div id="job-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="job-modal-title">Add Job</h3>
+                <button class="modal-close" data-modal="job-modal">&times;</button>
+            </div>
+            <form id="job-form" class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Select Client</label>
+                    <select class="form-control" id="job-client" required>
+                        <option value="">Choose a client...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Job Title</label>
+                    <input type="text" class="form-control" id="job-title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="job-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" class="form-control" id="job-due-date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quoted Amount ($)</label>
+                    <input type="number" class="form-control" id="job-amount" min="0" step="0.01">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--secondary" data-modal="job-modal">Cancel</button>
+                <button type="submit" form="job-form" class="btn btn--primary">Create Job</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Add Modal -->
+    <div id="quick-add-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quick Add</h3>
+                <button class="modal-close" data-modal="quick-add-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="quick-add-options">
+                    <button class="btn btn--outline btn--full-width" id="quick-add-contact">Add Contact</button>
+                    <button class="btn btn--outline btn--full-width" id="quick-add-job">Add Job</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
