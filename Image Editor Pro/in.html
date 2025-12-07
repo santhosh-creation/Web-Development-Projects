@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor Pro</title>
+    <style>
+        :root {
+            /* Color Variables */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --bg-tertiary: #e5e7eb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Main Content Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-right: 1px solid var(--bg-tertiary);
+        }
+
+        .tool-category {
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-category h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .tool-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-button:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .tool-button.active {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .tool-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Canvas Area */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: auto;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            background-color: var(--bg-secondary);
+            border: 2px dashed var(--bg-tertiary);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .image-placeholder:hover {
+            border-color: var(--accent);
+        }
+
+        .image-placeholder svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .canvas {
+            display: none;
+            position: relative;
+            max-width: 100%;
+            max-height: 80vh;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        #main-canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+        }
+
+        /* Tool Options Panel */
+        .tool-options {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-top: 1px solid var(--bg-tertiary);
+            display: none;
+        }
+
+        .tool-options.active {
+            display: block;
+        }
+
+        .option-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .option-group h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .slider-with-value {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* AI Prompt Assistant */
+        .prompt-assistant {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-top: 1px solid var(--bg-tertiary);
+            display: none;
+        }
+
+        .prompt-assistant.active {
+            display: block;
+        }
+
+        .prompt-structure {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .prompt-structure h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .prompt-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .prompt-example {
+            background-color: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .prompt-example:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        textarea {
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--bg-tertiary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--bg-secondary);
+            padding: 1rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--bg-tertiary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+                flex-direction: row;
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--bg-tertiary);
+            }
+            
+            .tool-category {
+                margin-bottom: 0;
+                margin-right: 1.5rem;
+                min-width: 160px;
+            }
+            
+            .canvas-container {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-controls {
+                display: none;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .prompt-examples {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .visible {
+            display: block !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toast-in 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        @keyframes toast-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Dark/Light mode toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4H10V10H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 4H20V10H14V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 14H10V20H4V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 17C14 17.7956 14.3161 18.5587 14.8787 19.1213C15.4413 19.6839 16.2044 20 17 20C17.7956 20 18.5587 19.6839 19.1213 19.1213C19.6839 18.5587 20 17.7956 20 17C20 16.2044 19.6839 15.4413 19.1213 14.8787C18.5587 14.3161 17.7956 14 17 14C16.2044 14 15.4413 14.3161 14.8787 14.8787C14.3161 15.4413 14 16.2044 14 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Image Editor Pro</span>
+        </div>
+        <div class="header-controls">
+            <button class="theme-toggle" aria-label="Toggle dark/light mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 20V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4.93 4.93L6.34 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.66 17.66L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.34 17.66L4.93 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19.07 4.93L17.66 6.34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="btn btn-secondary" id="import-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Import Image
+            </button>
+            <button class="btn btn-primary" id="export-btn" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 10L12 15L7 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Export Image
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="tool-category">
+                <h3>Core Tools</h3>
+                <button class="tool-button" data-tool="crop">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 17V7H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 7V17H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Crop & Resize
+                </button>
+                <button class="tool-button" data-tool="adjustments">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 20V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18 20V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 20V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Adjustments
+                </button>
+                <button class="tool-button" data-tool="filters">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 18H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M6 6H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Filters & Presets
+                </button>
+                <button class="tool-button" data-tool="transform">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 6L20 12L14 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 4V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Transform
+                </button>
+            </div>
+
+            <div class="tool-category">
+                <h3>AI Tools</h3>
+                <button class="tool-button" data-tool="background-removal">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6L5 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Background Removal
+                </button>
+                <button class="tool-button" data-tool="object-removal">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Object Removal
+                </button>
+                <button class="tool-button" data-tool="enhance">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 12L12 6L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 6V18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    AI Enhance
+                </button>
+                <button class="tool-button" data-tool="generative-fill">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12H3M12 3V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Generative Fill
+                </button>
+            </div>
+
+            <div class="tool-category">
+                <h3>Layers</h3>
+                <button class="tool-button" data-tool="layers">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Layer Management
+                </button>
+                <button class="tool-button" data-tool="text">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M12 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M9 11H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Text
+                </button>
+            </div>
+        </aside>
+
+        <main class="canvas-container">
+            <div class="image-placeholder" id="upload-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16L8.586 11.414C8.96106 11.0391 9.46967 10.8284 10 10.8284C10.5303 10.8284 11.0389 11.0391 11.414 11.414L16 16M14 14L15.586 12.414C15.9611 12.0391 16.4697 11.8284 17 11.8284C17.5303 11.8284 18.0389 12.0391 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>Drag & drop an image here or click to browse</p>
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="canvas hidden" id="main-canvas-container">
+                <canvas id="main-canvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <div class="tool-options" id="tool-options">
+        <!-- Options will be dynamically populated based on selected tool -->
+    </div>
+
+    <div class="prompt-assistant" id="prompt-assistant">
+        <div class="prompt-structure">
+            <h4>Prompt Structure Guide</h4>
+            <p>When using AI, your prompt is the command. Write it like a short poem:</p>
+            <ol>
+                <li><strong>Subject</strong> — who/what is the main focus</li>
+                <li><strong>Descriptive details</strong> — mood, action, context</li>
+                <li><strong>Style/aesthetic</strong> — lighting, color, art style</li>
+                <li><strong>Action</strong> — exact operation (replace/erase/extend/enhance)</li>
+            </ol>
+        </div>
+
+        <div class="prompt-examples">
+            <div class="prompt-example" data-prompt="Replace the bustling city with a vast, empty beach at golden hour; keep the man centered and warm the light to soft gold.">
+                <strong>Background Change</strong>
+                <p>Replace city with beach at golden hour</p>
+            </div>
+            <div class="prompt-example" data-prompt="From the polished wood table, erase the small silver phone; leave the wood grain seamless, no trace.">
+                <strong>Object Removal</strong>
+                <p>Remove phone from table seamlessly</p>
+            </div>
+            <div class="prompt-example" data-prompt="Transform into a misty morning: diffuse soft light, cool shadows, intensify greens, add slight lens haze.">
+                <strong>Mood & Lighting</strong>
+                <p>Create misty morning atmosphere</p>
+            </div>
+            <div class="prompt-example" data-prompt="Render like an old faded photograph — sepia tone, subtle grain, gentle vignette, and soft contrast.">
+                <strong>Stylistic Filter</strong>
+                <p>Apply vintage photo effect</p>
+            </div>
+        </div>
+
+        <textarea id="ai-prompt-input" placeholder="Describe what you want the AI to do..."></textarea>
+
+        <div class="flex" style="gap: 1rem;">
+            <button class="btn btn-primary" id="apply-ai-button">
+                Apply AI Enhancement
+            </button>
+            <button class="btn btn-secondary" id="cancel-ai-button">
+                Cancel
+            </button>
+        </div>
+        <p class="help-text" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+            "Send to AI — may take a few seconds."
+        </p>
+    </div>
+
+    <footer>
+        Developed By SANTHOSH_A • Live: 18:00 IST, August 28, 2025
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // App state management
+        const state = {
+            originalImage: null,
+            currentImage: null,
+            editHistory: [],
+            currentEditIndex: -1,
+            activeTool: null,
+            filters: {
+                exposure: 0,
+                contrast: 0,
+                saturation: 0,
+                temperature: 0,
+                vibrance: 0,
+                sharpen: 0,
+                blur: 0
+            },
+            currentPreset: null,
+            layers: [],
+            aiPrompt: ''
+        };
+
+        // DOM elements
+        const elements = {
+            uploadPlaceholder: document.getElementById('upload-placeholder'),
+            fileInput: document.getElementById('file-input'),
+            mainCanvasContainer: document.getElementById('main-canvas-container'),
+            mainCanvas: document.getElementById('main-canvas'),
+            toolOptions: document.getElementById('tool-options'),
+            promptAssistant: document.getElementById('prompt-assistant'),
+            exportBtn: document.getElementById('export-btn'),
+            importBtn: document.getElementById('import-btn'),
+            aiPromptInput: document.getElementById('ai-prompt-input'),
+            applyAiButton: document.getElementById('apply-ai-button'),
+            cancelAiButton: document.getElementById('cancel-ai-button'),
+            toastContainer: document.getElementById('toast-container'),
+            themeToggle: document.querySelector('.theme-toggle')
+        };
+
+        // Canvas context
+        const ctx = elements.mainCanvas.getContext('2d');
+
+        // Initialize the application
+        function init() {
+            setupEventListeners();
+            setupDragAndDrop();
+            loadFromLocalStorage();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // File upload
+            elements.uploadPlaceholder.addEventListener('click', () => elements.fileInput.click());
+            elements.fileInput.addEventListener('change', handleFileSelect);
+            elements.importBtn.addEventListener('click', () => elements.fileInput.click());
+            
+            // Tool selection
+            document.querySelectorAll('.tool-button').forEach(button => {
+                button.addEventListener('click', () => selectTool(button.dataset.tool));
+            });
+            
+            // AI prompt handling
+            elements.applyAiButton.addEventListener('click', applyAIEnhancement);
+            elements.cancelAiButton.addEventListener('click', hidePromptAssistant);
+            
+            // Export button
+            elements.exportBtn.addEventListener('click', exportImage);
+            
+            // Prompt examples
+            document.querySelectorAll('.prompt-example').forEach(example => {
+                example.addEventListener('click', () => {
+                    elements.aiPromptInput.value = example.dataset.prompt;
+                });
+            });
+            
+            // Theme toggle
+            elements.themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // Set up drag and drop
+        function setupDragAndDrop() {
+            const placeholder = elements.uploadPlaceholder;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                placeholder.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                placeholder.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                placeholder.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                placeholder.style.borderColor = 'var(--accent)';
+                placeholder.style.backgroundColor = 'var(--bg-tertiary)';
+            }
+            
+            function unhighlight() {
+                placeholder.style.borderColor = 'var(--bg-tertiary)';
+                placeholder.style.backgroundColor = 'var(--bg-secondary)';
+            }
+            
+            placeholder.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    handleFiles(files);
+                }
+            }
+        }
+
+        // Handle file selection
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+        }
+
+        // Handle uploaded files
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            if (!file.type.match('image.*')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Initialize the application with the image
+                    initializeEditor(img, file.name);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Initialize the editor with an image
+        function initializeEditor(img, filename) {
+            state.originalImage = img;
+            state.currentImage = img;
+            state.filename = filename;
+            
+            // Set canvas dimensions
+            elements.mainCanvas.width = img.width;
+            elements.mainCanvas.height = img.height;
+            
+            // Draw the image on canvas
+            drawImage();
+            
+            // Update UI
+            elements.uploadPlaceholder.classList.add('hidden');
+            elements.mainCanvasContainer.classList.remove('hidden');
+            elements.exportBtn.disabled = false;
+            
+            // Reset edit history
+            state.editHistory = [];
+            state.currentEditIndex = -1;
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            showToast('Image loaded successfully');
+        }
+
+        // Draw the current image on canvas
+        function drawImage() {
+            if (!state.currentImage) return;
+            
+            ctx.clearRect(0, 0, elements.mainCanvas.width, elements.mainCanvas.height);
+            ctx.drawImage(state.currentImage, 0, 0);
+            
+            // Apply current filters
+            applyFilters();
+        }
+
+        // Apply current filters to the canvas
+        function applyFilters() {
+            // This is a simplified implementation
+            // In a real app, you would use more sophisticated methods
+            if (state.filters.exposure !== 0) {
+                applyExposure(state.filters.exposure);
+            }
+            
+            if (state.filters.contrast !== 0) {
+                applyContrast(state.filters.contrast);
+            }
+            
+            // Other filters would be applied here
+        }
+
+        // Apply exposure adjustment (simplified)
+        function applyExposure(value) {
+            const imageData = ctx.getImageData(0, 0, elements.mainCanvas.width, elements.mainCanvas.height);
+            const data = imageData.data;
+            const factor = Math.pow(2, value / 100);
+            
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * factor);     // R
+                data[i + 1] = Math.min(255, data[i + 1] * factor); // G
+                data[i + 2] = Math.min(255, data[i + 2] * factor); // B
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Apply contrast adjustment (simplified)
+        function applyContrast(value) {
+            const imageData = ctx.getImageData(0, 0, elements.mainCanvas.width, elements.mainCanvas.height);
+            const data = imageData.data;
+            const factor = (259 * (value + 255)) / (255 * (259 - value));
+            
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128));     // R
+                data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128)); // G
+                data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128)); // B
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Select a tool
+        function selectTool(tool) {
+            // Deselect all tools
+            document.querySelectorAll('.tool-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Select the clicked tool
+            const selectedTool = document.querySelector(`[data-tool="${tool}"]`);
+            if (selectedTool) {
+                selectedTool.classList.add('active');
+            }
+            
+            state.activeTool = tool;
+            
+            // Show appropriate options panel
+            if (tool.startsWith('ai-') || [
+                'background-removal', 
+                'object-removal', 
+                'enhance', 
+                'generative-fill'
+            ].includes(tool)) {
+                showPromptAssistant();
+            } else {
+                showToolOptions(tool);
+                hidePromptAssistant();
+            }
+        }
+
+        // Show tool options panel
+        function showToolOptions(tool) {
+            elements.toolOptions.classList.add('active');
+            elements.toolOptions.innerHTML = generateToolOptions(tool);
+            
+            // Add event listeners to the generated options
+            if (tool === 'adjustments') {
+                setupAdjustmentSliders();
+            } else if (tool === 'filters') {
+                setupFilterPresets();
+            }
+        }
+
+        // Generate HTML for tool options
+        function generateToolOptions(tool) {
+            switch (tool) {
+                case 'adjustments':
+                    return `
+                        <div class="option-group">
+                            <h4>Exposure & Color</h4>
+                            <div class="slider-container">
+                                <label>Exposure</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="exposure-slider" min="-100" max="100" value="${state.filters.exposure}">
+                                    <span class="value-display" id="exposure-value">${state.filters.exposure}</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <label>Contrast</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="contrast-slider" min="-100" max="100" value="${state.filters.contrast}">
+                                    <span class="value-display" id="contrast-value">${state.filters.contrast}</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <label>Saturation</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="saturation-slider" min="-100" max="100" value="${state.filters.saturation}">
+                                    <span class="value-display" id="saturation-value">${state.filters.saturation}</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <label>Temperature</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="temperature-slider" min="-100" max="100" value="${state.filters.temperature}">
+                                    <span class="value-display" id="temperature-value">${state.filters.temperature}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <h4>Details</h4>
+                            <div class="slider-container">
+                                <label>Sharpen</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="sharpen-slider" min="0" max="100" value="${state.filters.sharpen}">
+                                    <span class="value-display" id="sharpen-value">${state.filters.sharpen}</span>
+                                </div>
+                            </div>
+                            <div class="slider-container">
+                                <label>Blur</label>
+                                <div class="slider-with-value">
+                                    <input type="range" class="slider" id="blur-slider" min="0" max="100" value="${state.filters.blur}">
+                                    <span class="value-display" id="blur-value">${state.filters.blur}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="apply-adjustments">Apply Adjustments</button>
+                    `;
+                
+                case 'filters':
+                    return `
+                        <div class="option-group">
+                            <h4>Filter Presets</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                                <button class="btn btn-secondary filter-preset" data-preset="vintage">Vintage</button>
+                                <button class="btn btn-secondary filter-preset" data-preset="bw">B&W</button>
+                                <button class="btn btn-secondary filter-preset" data-preset="cinematic">Cinematic</button>
+                                <button class="btn btn-secondary filter-preset" data-preset="high-contrast">High Contrast</button>
+                                <button class="btn btn-secondary filter-preset" data-preset="pastel">Pastel</button>
+                                <button class="btn btn-secondary filter-preset" data-preset="film-grain">Film Grain</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" id="reset-filters">Reset Filters</button>
+                    `;
+                
+                case 'crop':
+                    return `
+                        <div class="option-group">
+                            <h4>Crop Options</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+                                <button class="btn btn-secondary aspect-ratio" data-ratio="1:1">1:1</button>
+                                <button class="btn btn-secondary aspect-ratio" data-ratio="4:3">4:3</button>
+                                <button class="btn btn-secondary aspect-ratio" data-ratio="16:9">16:9</button>
+                                <button class="btn btn-secondary aspect-ratio" data-ratio="3:2">3:2</button>
+                                <button class="btn btn-secondary aspect-ratio" data-ratio="free">Free</button>
+                            </div>
+                            <button class="btn btn-primary" id="apply-crop">Apply Crop</button>
+                            <button class="btn btn-secondary" id="cancel-crop">Cancel</button>
+                        </div>
+                    `;
+                
+                default:
+                    return `<p>Options for ${tool} will be implemented soon.</p>`;
+            }
+        }
+
+        // Set up adjustment sliders
+        function setupAdjustmentSliders() {
+            const sliders = [
+                { id: 'exposure-slider', property: 'exposure', valueId: 'exposure-value' },
+                { id: 'contrast-slider', property: 'contrast', valueId: 'contrast-value' },
+                { id: 'saturation-slider', property: 'saturation', valueId: 'saturation-value' },
+                { id: 'temperature-slider', property: 'temperature', valueId: 'temperature-value' },
+                { id: 'sharpen-slider', property: 'sharpen', valueId: 'sharpen-value' },
+                { id: 'blur-slider', property: 'blur', valueId: 'blur-value' }
+            ];
+            
+            sliders.forEach(slider => {
+                const element = document.getElementById(slider.id);
+                const valueElement = document.getElementById(slider.valueId);
+                
+                element.addEventListener('input', () => {
+                    const value = parseInt(element.value);
+                    valueElement.textContent = value;
+                    state.filters[slider.property] = value;
+                    drawImage(); // Redraw with updated filters
+                });
+            });
+            
+            document.getElementById('apply-adjustments').addEventListener('click', () => {
+                saveEditState();
+                showToast('Adjustments applied');
+            });
+        }
+
+        // Set up filter presets
+        function setupFilterPresets() {
+            document.querySelectorAll('.filter-preset').forEach(button => {
+                button.addEventListener('click', () => {
+                    const preset = button.dataset.preset;
+                    applyFilterPreset(preset);
+                    state.currentPreset = preset;
+                    showToast(`${presetName(preset)} filter applied`);
+                });
+            });
+            
+            document.getElementById('reset-filters').addEventListener('click', () => {
+                // Reset all filters
+                Object.keys(state.filters).forEach(key => {
+                    state.filters[key] = 0;
+                });
+                state.currentPreset = null;
+                drawImage();
+                showToast('Filters reset');
+            });
+        }
+
+        // Apply a filter preset
+        function applyFilterPreset(preset) {
+            // Reset all filters first
+            Object.keys(state.filters).forEach(key => {
+                state.filters[key] = 0;
+            });
+            
+            // Apply preset values
+            switch (preset) {
+                case 'vintage':
+                    state.filters.temperature = 30;
+                    state.filters.saturation = -10;
+                    state.filters.exposure = -5;
+                    break;
+                case 'bw':
+                    state.filters.saturation = -100;
+                    state.filters.contrast = 20;
+                    break;
+                case 'cinematic':
+                    state.filters.contrast = 30;
+                    state.filters.exposure = -10;
+                    break;
+                case 'high-contrast':
+                    state.filters.contrast = 50;
+                    state.filters.saturation = 10;
+                    break;
+                case 'pastel':
+                    state.filters.saturation = -30;
+                    state.filters.exposure = 15;
+                    break;
+                case 'film-grain':
+                    // Film grain would require a more complex implementation
+                    state.filters.contrast = 10;
+                    state.filters.exposure = -5;
+                    break;
+            }
+            
+            drawImage();
+        }
+
+        // Get display name for preset
+        function presetName(preset) {
+            const names = {
+                'vintage': 'Vintage',
+                'bw': 'Black & White',
+                'cinematic': 'Cinematic',
+                'high-contrast': 'High Contrast',
+                'pastel': 'Pastel',
+                'film-grain': 'Film Grain'
+            };
+            
+            return names[preset] || preset;
+        }
+
+        // Show prompt assistant
+        function showPromptAssistant() {
+            elements.promptAssistant.classList.add('active');
+        }
+
+        // Hide prompt assistant
+        function hidePromptAssistant() {
+            elements.promptAssistant.classList.remove('active');
+        }
+
+        // Apply AI enhancement
+        function applyAIEnhancement() {
+            const prompt = elements.aiPromptInput.value.trim();
+            
+            if (!prompt) {
+                showToast('Please enter a prompt', 'error');
+                return;
+            }
+            
+            state.aiPrompt = prompt;
+            
+            // Show loading state
+            elements.applyAiButton.classList.add('loading');
+            elements.applyAiButton.disabled = true;
+            
+            // Simulate API call (in a real app, this would call the actual API)
+            setTimeout(() => {
+                // In a real application, this would process the API response
+                simulateAIResponse(prompt);
+                
+                // Hide loading state
+                elements.applyAiButton.classList.remove('loading');
+                elements.applyAiButton.disabled = false;
+                
+                hidePromptAssistant();
+                saveEditState();
+                
+                showToast('AI enhancement applied');
+            }, 2000);
+        }
+
+        // Simulate AI response (placeholder for real API integration)
+        function simulateAIResponse(prompt) {
+            // This is a placeholder for actual AI integration
+            // In a real application, you would:
+            // 1. Send the image and prompt to your API
+            // 2. Process the response
+            // 3. Update the image accordingly
+            
+            console.log(`Simulating AI processing for prompt: ${prompt}`);
+            
+            // For demonstration, we'll just apply a random filter
+            const presets = ['vintage', 'bw', 'cinematic', 'high-contrast', 'pastel'];
+            const randomPreset = presets[Math.floor(Math.random() * presets.length)];
+            applyFilterPreset(randomPreset);
+        }
+
+        // Save current edit state to history
+        function saveEditState() {
+            // If we're not at the end of the history, remove future states
+            if (state.currentEditIndex < state.editHistory.length - 1) {
+                state.editHistory = state.editHistory.slice(0, state.currentEditIndex + 1);
+            }
+            
+            // Add current state to history
+            state.editHistory.push({
+                filters: {...state.filters},
+                preset: state.currentPreset,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Limit history size
+            if (state.editHistory.length > 20) {
+                state.editHistory.shift();
+            }
+            
+            state.currentEditIndex = state.editHistory.length - 1;
+            
+            // Save to localStorage
+            saveToLocalStorage();
+        }
+
+        // Export the edited image
+        function exportImage() {
+            if (!state.currentImage) return;
+            
+            // Create a download link
+            const link = document.createElement('a');
+            link.download = `edited-${state.filename || 'image'}`;
+            
+            // Convert canvas to blob
+            elements.mainCanvas.toBlob(blob => {
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                
+                // Clean up
+                setTimeout(() => URL.revokeObjectURL(link.href), 100);
+            }, 'image/jpeg', 0.9);
+            
+            // Also export edit history as JSON
+            const editsJson = JSON.stringify({
+                originalFilename: state.filename,
+                edits: state.editHistory,
+                timestamp: new Date().toISOString(),
+                aiPrompt: state.aiPrompt
+            }, null, 2);
+            
+            const editsBlob = new Blob([editsJson], { type: 'application/json' });
+            const editsLink = document.createElement('a');
+            editsLink.download = `edits-${state.filename || 'image'}.json`;
+            editsLink.href = URL.createObjectURL(editsBlob);
+            editsLink.click();
+            
+            // Clean up
+            setTimeout(() => URL.revokeObjectURL(editsLink.href), 100);
+            
+            showToast('Image and edits exported');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            elements.toastContainer.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Toggle light/dark mode
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            
+            // Save theme preference to localStorage
+            const isLightMode = document.body.classList.contains('light-mode');
+            localStorage.setItem('lightMode', isLightMode);
+            
+            showToast(`${isLightMode ? 'Light' : 'Dark'} mode enabled`);
+        }
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            // Load theme preference
+            const lightMode = localStorage.getItem('lightMode') === 'true';
+            if (lightMode) {
+                document.body.classList.add('light-mode');
+            }
+            
+            // In a real app, you might load more data here
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            // In a real app, you would save application state here
+        }
+
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
