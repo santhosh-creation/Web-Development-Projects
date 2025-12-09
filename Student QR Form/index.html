@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form to QR Code - Student Info</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">Student QR Form</div>
+      <nav class="tabs" role="tablist" aria-label="Primary">
+        <button id="tab-generate" class="tab active" aria-selected="true" data-target="#view-generate">Generate</button>
+        <button id="tab-scan" class="tab" aria-selected="false" data-target="#view-scan">Scan</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <!-- Generate View -->
+      <section id="view-generate" class="view active" aria-labelledby="tab-generate">
+        <form id="studentForm" novalidate>
+          <h2 class="section-title">Personal Details</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="fullName">Full Name <span class="req">*</span></label>
+              <input type="text" id="fullName" name="fullName" required placeholder="Enter full name" />
+            </div>
+            <div class="field">
+              <label for="registerNumber">Register Number <span class="req">*</span></label>
+              <input type="text" id="registerNumber" name="registerNumber" required placeholder="e.g., 21CS001" />
+            </div>
+            <div class="field">
+              <label>Gender <span class="req">*</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="gender" value="Male" required /> Male</label>
+                <label><input type="radio" name="gender" value="Female" /> Female</label>
+                <label><input type="radio" name="gender" value="Other" /> Other</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="dob">Date of Birth <span class="req">*</span></label>
+              <input type="date" id="dob" name="dob" required />
+            </div>
+            <div class="field">
+              <label for="bloodGroup">Blood Group <span class="req">*</span></label>
+              <select id="bloodGroup" name="bloodGroup" required>
+                <option value="">Select</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="nationality">Nationality <span class="req">*</span></label>
+              <input type="text" id="nationality" name="nationality" required placeholder="e.g., Indian" />
+            </div>
+          </div>
+
+          <h2 class="section-title">Contact Details</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="mobile">Mobile Number <span class="req">*</span></label>
+              <input type="tel" id="mobile" name="mobile" required pattern="^[6-9]\d{9}$" placeholder="10-digit number" />
+              <small class="hint">Starts with 6-9, 10 digits</small>
+            </div>
+            <div class="field">
+              <label for="altMobile">Alternate Mobile</label>
+              <input type="tel" id="altMobile" name="altMobile" pattern="^[6-9]\d{9}$" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="email">Email Address <span class="req">*</span></label>
+              <input type="email" id="email" name="email" required placeholder="name@example.com" />
+            </div>
+            <div class="field span-2">
+              <label for="address">Address <span class="req">*</span></label>
+              <input type="text" id="address" name="address" required placeholder="Street, Area" />
+            </div>
+            <div class="field">
+              <label for="city">City <span class="req">*</span></label>
+              <input type="text" id="city" name="city" required />
+            </div>
+            <div class="field">
+              <label for="state">State <span class="req">*</span></label>
+              <input type="text" id="state" name="state" required />
+            </div>
+            <div class="field">
+              <label for="pincode">Pincode <span class="req">*</span></label>
+              <input type="text" id="pincode" name="pincode" required pattern="^\d{6}$" placeholder="6-digit" />
+            </div>
+          </div>
+
+          <h2 class="section-title">Academic Details</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="department">Department <span class="req">*</span></label>
+              <input type="text" id="department" name="department" required placeholder="e.g., CSE, MCA" />
+            </div>
+            <div class="field">
+              <label for="course">Course / Degree <span class="req">*</span></label>
+              <input type="text" id="course" name="course" required placeholder="e.g., B.Sc, B.Tech, MCA" />
+            </div>
+            <div class="field">
+              <label for="year">Year / Semester</label>
+              <input type="text" id="year" name="year" placeholder="e.g., Year 2 / Sem 3" />
+            </div>
+            <div class="field">
+              <label for="rollNumber">Roll Number</label>
+              <input type="text" id="rollNumber" name="rollNumber" placeholder="Optional" />
+            </div>
+            <div class="field span-2">
+              <label for="college">College / Institution</label>
+              <input type="text" id="college" name="college" placeholder="Optional" />
+            </div>
+          </div>
+
+          <h2 class="section-title">Family Details</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="fatherName">Father's Name</label>
+              <input type="text" id="fatherName" name="fatherName" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="fatherMobile">Father's Mobile</label>
+              <input type="tel" id="fatherMobile" name="fatherMobile" pattern="^[6-9]\d{9}$" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="motherName">Mother's Name</label>
+              <input type="text" id="motherName" name="motherName" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="motherMobile">Mother's Mobile</label>
+              <input type="tel" id="motherMobile" name="motherMobile" pattern="^[6-9]\d{9}$" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="guardianName">Guardian Name</label>
+              <input type="text" id="guardianName" name="guardianName" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="guardianMobile">Guardian Mobile</label>
+              <input type="tel" id="guardianMobile" name="guardianMobile" pattern="^[6-9]\d{9}$" placeholder="Optional" />
+            </div>
+          </div>
+
+          <h2 class="section-title">Additional Info</h2>
+          <div class="grid">
+            <div class="field">
+              <label for="aadhar">Aadhar Number</label>
+              <input type="text" id="aadhar" name="aadhar" pattern="^\d{12}$" placeholder="12-digit (optional)" />
+            </div>
+            <div class="field">
+              <label for="emergencyName">Emergency Contact Name</label>
+              <input type="text" id="emergencyName" name="emergencyName" placeholder="Optional" />
+            </div>
+            <div class="field">
+              <label for="emergencyMobile">Emergency Mobile</label>
+              <input type="tel" id="emergencyMobile" name="emergencyMobile" pattern="^[6-9]\d{9}$" placeholder="Optional" />
+            </div>
+            <div class="field span-2">
+              <label for="notes">Notes</label>
+              <textarea id="notes" name="notes" rows="3" placeholder="Any additional information (optional)"></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Generate QR Code</button>
+            <button type="reset" class="btn ghost" id="btnReset">Reset</button>
+          </div>
+        </form>
+
+        <section id="result" class="result hidden" aria-live="polite">
+          <div class="confirm">Success! Your QR code has been generated below.</div>
+          <div class="result-grid">
+            <div class="qr-card">
+              <div id="qrcode" class="qrcode"></div>
+              <div class="qr-actions">
+                <button id="btnDownload" class="btn">Download QR</button>
+              </div>
+            </div>
+            <div class="text-card">
+              <h3>Encoded Details</h3>
+              <pre id="encodedText" class="encoded"></pre>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Scan View -->
+      <section id="view-scan" class="view" aria-labelledby="tab-scan">
+        <div class="scan-wrapper">
+          <div id="qr-reader" class="qr-reader"></div>
+          <div class="scan-actions">
+            <button id="btnStartScan" class="btn primary">Start Scanning</button>
+            <button id="btnStopScan" class="btn ghost" disabled>Stop</button>
+          </div>
+
+          <div id="scanPassword" class="password-card hidden">
+            <h3>Enter Password to View Details</h3>
+            <div class="field">
+              <label for="scanPwd">Password</label>
+              <input type="password" id="scanPwd" placeholder="Enter password" />
+            </div>
+            <div class="actions">
+              <button id="btnVerifyPwd" class="btn">Verify</button>
+              <button id="btnRetryScan" class="btn ghost">Scan Again</button>
+            </div>
+            <div id="pwdMsg" class="pwd-message"></div>
+          </div>
+
+          <div id="scanResult" class="scan-result hidden">
+            <h3>Scanned Details</h3>
+            <pre id="scanText" class="encoded"></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">Developed by <strong>SANTHOSH_A</strong></footer>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
+
+
