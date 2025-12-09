@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santhosh PC Repair</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background-color: #0a0a1a;
+            color: #fff;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #canvas {
+            display: block;
+        }
+        
+        #uiOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .ui-panel {
+            background-color: rgba(10, 20, 40, 0.85);
+            border: 2px solid #2a4b8d;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
+            pointer-events: all;
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        #hud {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            padding: 15px;
+        }
+        
+        #ordersPanel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        #inventoryPanel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 150px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+        }
+        
+        .inventory-item {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(40, 60, 120, 0.7);
+            border: 1px solid #4a7de8;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .inventory-item:hover {
+            transform: scale(1.1);
+            background-color: rgba(60, 100, 200, 0.9);
+        }
+        
+        .order-card {
+            background-color: rgba(20, 40, 80, 0.7);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4a7de8;
+        }
+        
+        .urgent {
+            border-left-color: #e84a4a;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #4a7de8, #2a4b8d);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: linear-gradient(to bottom, #5a8eff, #3a5bbd);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 100, 255, 0.4);
+        }
+        
+        h1 {
+            color: #4a7de8;
+            text-shadow: 0 0 10px rgba(74, 125, 232, 0.5);
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #1a2c5a;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4a7de8, #6ba2ff);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4a7de8;
+        }
+        
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .crosshair::before {
+            width: 2px;
+            height: 20px;
+            top: 0;
+            left: 9px;
+        }
+        
+        .crosshair::after {
+            width: 20px;
+            height: 2px;
+            top: 9px;
+            left: 0;
+        }
+        
+        #repairStation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            background-color: rgba(10, 20, 40, 0.95);
+            border: 2px solid #2a4b8d;
+            border-radius: 8px;
+            padding: 20px;
+            display: none;
+            pointer-events: all;
+            z-index: 100;
+        }
+        
+        .pc-component {
+            width: 70px;
+            height: 70px;
+            margin: 10px;
+            background-color: rgba(40, 60, 120, 0.7);
+            border: 1px solid #4a7de8;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pc-component:hover {
+            transform: scale(1.1);
+            background-color: rgba(60, 100, 200, 0.9);
+        }
+        
+        #credit {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #4a7de8;
+            text-align: center;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="canvas"></canvas>
+        
+        <div id="uiOverlay">
+            <div id="startScreen" class="ui-panel">
+                <h1>Santhosh PC Repair</h1>
+                <p>Become a PC technician and build your repair empire!</p>
+                <button id="startButton">Start Game</button>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="highscore">$0</div>
+                        <div>High Score</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="level">1</div>
+                        <div>Level</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="completed">0</div>
+                        <div>PCs Repaired</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="hud" class="ui-panel" style="display: none;">
+                <h3>Player Stats</h3>
+                <div>Money: <span id="money">$100</span></div>
+                <div>Reputation: <span id="reputation">50%</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="reputationBar" style="width: 50%;"></div>
+                </div>
+                <div>Current Order: <span id="currentOrder">None</span></div>
+            </div>
+            
+            <div id="ordersPanel" class="ui-panel" style="display: none;">
+                <h3>Available Orders</h3>
+                <div id="ordersList">
+                    <!-- Orders will be dynamically added here -->
+                </div>
+            </div>
+            
+            <div id="inventoryPanel" class="ui-panel" style="display: none;">
+                <h3>Inventory</h3>
+                <div class="inventory-item" title="RAM">RAM</div>
+                <div class="inventory-item" title="GPU">GPU</div>
+                <div class="inventory-item" title="PSU">PSU</div>
+                <div class="inventory-item" title="CPU">CPU</div>
+                <div class="inventory-item" title="Thermal Paste">Paste</div>
+                <div class="inventory-item" title="Screwdriver">Tool</div>
+            </div>
+            
+            <div class="crosshair"></div>
+            
+            <div id="repairStation" class="ui-panel">
+                <h2>PC Repair Station</h2>
+                <div id="pcComponents">
+                    <div class="pc-component" title="RAM Slot 1">RAM 1</div>
+                    <div class="pc-component" title="RAM Slot 2">RAM 2</div>
+                    <div class="pc-component" title="GPU">GPU</div>
+                    <div class="pc-component" title="CPU">CPU</div>
+                    <div class="pc-component" title="PSU">PSU</div>
+                    <div class="pc-component" title="Fans">Fans</div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button id="testPC">Test PC</button>
+                    <button id="completeRepair">Complete Repair</button>
+                    <button id="closeRepair">Close</button>
+                </div>
+            </div>
+            
+            <div id="credit">👉 Developed by SANTHOSH_A</div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            started: false,
+            money: 100,
+            reputation: 50,
+            currentOrder: null,
+            inventory: ['RAM', 'GPU', 'PSU', 'CPU', 'Thermal Paste', 'Screwdriver'],
+            orders: [],
+            completedOrders: 0,
+            level: 1
+        };
+
+        // DOM Elements
+        const startScreen = document.getElementById('startScreen');
+        const hud = document.getElementById('hud');
+        const ordersPanel = document.getElementById('ordersPanel');
+        const inventoryPanel = document.getElementById('inventoryPanel');
+        const startButton = document.getElementById('startButton');
+        const repairStation = document.getElementById('repairStation');
+        
+        // Three.js variables
+        let camera, scene, renderer, controls;
+        let objects = [];
+        let raycaster;
+        
+        // Initialize the game
+        function init() {
+            // Set up Three.js scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a2a);
+            scene.fog = new THREE.Fog(0x0a0a2a, 10, 20);
+            
+            // Set up camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 0);
+            
+            // Set up renderer
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            
+            // Set up lighting
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            // Create a simple room
+            createEnvironment();
+            
+            // Set up pointer lock controls
+            controls = new THREE.PointerLockControls(camera, document.body);
+            
+            // Set up raycaster for object interaction
+            raycaster = new THREE.Raycaster();
+            
+            // Event listeners
+            startButton.addEventListener('click', startGame);
+            document.addEventListener('click', onDocumentClick);
+            window.addEventListener('resize', onWindowResize);
+            
+            // Generate some initial orders
+            generateOrders();
+            
+            // Start animation loop
+            animate();
+        }
+        
+        // Create the game environment
+        function createEnvironment() {
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(20, 20);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a3a,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            // Walls
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x25254e,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const wall1 = new THREE.Mesh(new THREE.BoxGeometry(20, 5, 0.5), wallMaterial);
+            wall1.position.set(0, 2.5, -10);
+            wall1.castShadow = true;
+            scene.add(wall1);
+            
+            const wall2 = new THREE.Mesh(new THREE.BoxGeometry(20, 5, 0.5), wallMaterial);
+            wall2.position.set(0, 2.5, 10);
+            wall2.rotation.y = Math.PI;
+            wall2.castShadow = true;
+            scene.add(wall2);
+            
+            const wall3 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 20), wallMaterial);
+            wall3.position.set(-10, 2.5, 0);
+            wall3.rotation.y = Math.PI / 2;
+            wall3.castShadow = true;
+            scene.add(wall3);
+            
+            const wall4 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 5, 20), wallMaterial);
+            wall4.position.set(10, 2.5, 0);
+            wall4.rotation.y = -Math.PI / 2;
+            wall4.castShadow = true;
+            scene.add(wall4);
+            
+            // Workshop objects
+            createWorkbench();
+            createPCs();
+        }
+        
+        // Create workbench object
+        function createWorkbench() {
+            const benchGeometry = new THREE.BoxGeometry(4, 1, 2);
+            const benchMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x553311,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            
+            const bench = new THREE.Mesh(benchGeometry, benchMaterial);
+            bench.position.set(0, 0.5, 0);
+            bench.castShadow = true;
+            bench.receiveShadow = true;
+            bench.userData = { type: 'workbench' };
+            scene.add(bench);
+            objects.push(bench);
+            
+            // Add some tools on the bench
+            const toolGeometry = new THREE.BoxGeometry(0.2, 0.1, 1);
+            const toolMaterial = new THREE.MeshStandardMaterial({ color: 0x888888 });
+            
+            const tool1 = new THREE.Mesh(toolGeometry, toolMaterial);
+            tool1.position.set(-0.5, 1.1, 0);
+            tool1.rotation.z = Math.PI / 4;
+            scene.add(tool1);
+            
+            const tool2 = new THREE.Mesh(toolGeometry, toolMaterial);
+            tool2.position.set(0.5, 1.1, 0);
+            tool2.rotation.z = -Math.PI / 4;
+            scene.add(tool2);
+        }
+        
+        // Create PC objects in the workshop
+        function createPCs() {
+            // PC case 1
+            const pcGeometry = new THREE.BoxGeometry(0.5, 1, 1);
+            const pcMaterial = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            
+            const pc1 = new THREE.Mesh(pcGeometry, pcMaterial);
+            pc1.position.set(-3, 0.5, -3);
+            pc1.userData = { type: 'pc', broken: true, orderId: 1 };
+            scene.add(pc1);
+            objects.push(pc1);
+            
+            // PC case 2
+            const pc2 = new THREE.Mesh(pcGeometry, pcMaterial);
+            pc2.position.set(3, 0.5, 3);
+            pc2.userData = { type: 'pc', broken: true, orderId: 2 };
+            scene.add(pc2);
+            objects.push(pc2);
+        }
+        
+        // Start the game
+        function startGame() {
+            gameState.started = true;
+            startScreen.style.display = 'none';
+            hud.style.display = 'block';
+            ordersPanel.style.display = 'block';
+            inventoryPanel.style.display = 'block';
+            
+            controls.lock();
+            updateUI();
+        }
+        
+        // Generate random orders
+        function generateOrders() {
+            const problems = [
+                'Broken GPU',
+                'Dusty fans',
+                'Faulty RAM',
+                'Power supply failure',
+                'Overheating CPU',
+                'Cable management issues'
+            ];
+            
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            for (let i = 0; i < 3; i++) {
+                const problem = problems[Math.floor(Math.random() * problems.length)];
+                const reward = 50 + Math.floor(Math.random() * 100);
+                const timeLimit = 120 + Math.floor(Math.random() * 180); // seconds
+                
+                const order = {
+                    id: i + 1,
+                    problem,
+                    reward,
+                    timeLimit,
+                    timeLeft: timeLimit,
+                    urgent: Math.random() > 0.7
+                };
+                
+                gameState.orders.push(order);
+                
+                const orderElement = document.createElement('div');
+                orderElement.className = `order-card ${order.urgent ? 'urgent' : ''}`;
+                orderElement.innerHTML = `
+                    <h4>Order #${order.id}</h4>
+                    <p>Problem: ${problem}</p>
+                    <p>Reward: $${reward}</p>
+                    <p>Time: ${Math.floor(timeLeft / 60)}:${(timeLeft % 60).toString().padStart(2, '0')}</p>
+                    <button class="accept-order" data-id="${order.id}">Accept</button>
+                `;
+                
+                ordersList.appendChild(orderElement);
+            }
+            
+            // Add event listeners to accept buttons
+            document.querySelectorAll('.accept-order').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = parseInt(this.getAttribute('data-id'));
+                    acceptOrder(orderId);
+                });
+            });
+        }
+        
+        // Accept an order
+        function acceptOrder(orderId) {
+            const order = gameState.orders.find(o => o.id === orderId);
+            if (order) {
+                gameState.currentOrder = order;
+                updateUI();
+                
+                // Start timer for this order
+                const timer = setInterval(() => {
+                    order.timeLeft--;
+                    
+                    if (order.timeLeft <= 0) {
+                        clearInterval(timer);
+                        // Time's up - penalty
+                        gameState.reputation -= 10;
+                        if (gameState.reputation < 0) gameState.reputation = 0;
+                        updateUI();
+                        
+                        // Remove order
+                        gameState.orders = gameState.orders.filter(o => o.id !== orderId);
+                        if (gameState.currentOrder && gameState.currentOrder.id === orderId) {
+                            gameState.currentOrder = null;
+                        }
+                        
+                        // Regenerate orders
+                        generateOrders();
+                    }
+                    
+                    updateOrdersDisplay();
+                }, 1000);
+            }
+        }
+        
+        // Update orders display
+        function updateOrdersDisplay() {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            gameState.orders.forEach(order => {
+                const timeLeft = order.timeLeft;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                const orderElement = document.createElement('div');
+                orderElement.className = `order-card ${order.urgent ? 'urgent' : ''}`;
+                orderElement.innerHTML = `
+                    <h4>Order #${order.id}</h4>
+                    <p>Problem: ${order.problem}</p>
+                    <p>Reward: $${order.reward}</p>
+                    <p>Time: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
+                    <button class="accept-order" data-id="${order.id}">Accept</button>
+                `;
+                
+                ordersList.appendChild(orderElement);
+            });
+            
+            // Add event listeners to accept buttons
+            document.querySelectorAll('.accept-order').forEach(button => {
+                button.addEventListener('click', function() {
+                    const orderId = parseInt(this.getAttribute('data-id'));
+                    acceptOrder(orderId);
+                });
+            });
+        }
+        
+        // Update UI elements
+        function updateUI() {
+            document.getElementById('money').textContent = `$${gameState.money}`;
+            document.getElementById('reputation').textContent = `${gameState.reputation}%`;
+            document.getElementById('reputationBar').style.width = `${gameState.reputation}%`;
+            
+            if (gameState.currentOrder) {
+                document.getElementById('currentOrder').textContent = `Order #${gameState.currentOrder.id} - ${gameState.currentOrder.problem}`;
+            } else {
+                document.getElementById('currentOrder').textContent = 'None';
+            }
+        }
+        
+        // Handle document click for object interaction
+        function onDocumentClick(event) {
+            if (!gameState.started) return;
+            
+            // Calculate mouse position in normalized device coordinates
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Update the picking ray with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Calculate objects intersecting the picking ray
+            const intersects = raycaster.intersectObjects(objects);
+            
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                
+                if (object.userData.type === 'workbench') {
+                    // Open repair station
+                    repairStation.style.display = 'block';
+                    controls.unlock();
+                } else if (object.userData.type === 'pc') {
+                    // Select PC for repair
+                    if (gameState.currentOrder && gameState.currentOrder.id === object.userData.orderId) {
+                        repairStation.style.display = 'block';
+                        controls.unlock();
+                    }
+                }
+            }
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (controls.isLocked === true) {
+                // Update controls
+                controls.update();
+                
+                // Simple movement
+                const speed = 0.1;
+                const direction = new THREE.Vector3();
+                
+                if (isKeyPressed('KeyW')) {
+                    direction.z = -speed;
+                }
+                if (isKeyPressed('KeyS')) {
+                    direction.z = speed;
+                }
+                if (isKeyPressed('KeyA')) {
+                    direction.x = -speed;
+                }
+                if (isKeyPressed('KeyD')) {
+                    direction.x = speed;
+                }
+                
+                controls.moveRight(direction.x);
+                controls.moveForward(direction.z);
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Check if a key is pressed
+        const keys = {};
+        window.addEventListener('keydown', (e) => { keys[e.code] = true; });
+        window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+        
+        function isKeyPressed(code) {
+            return keys[code] === true;
+        }
+        
+        // Initialize the game when the window loads
+        window.addEventListener('load', init);
+        
+        // Add event listeners for repair station buttons
+        document.getElementById('testPC').addEventListener('click', function() {
+            alert('Testing PC... All components working correctly!');
+        });
+        
+        document.getElementById('completeRepair').addEventListener('click', function() {
+            if (gameState.currentOrder) {
+                gameState.money += gameState.currentOrder.reward;
+                gameState.reputation += 5;
+                if (gameState.reputation > 100) gameState.reputation = 100;
+                gameState.completedOrders++;
+                
+                // Level up logic
+                if (gameState.completedOrders >= gameState.level * 3) {
+                    gameState.level++;
+                    alert(`Level up! You are now level ${gameState.level}. New tools and components unlocked!`);
+                }
+                
+                // Remove completed order
+                gameState.orders = gameState.orders.filter(o => o.id !== gameState.currentOrder.id);
+                gameState.currentOrder = null;
+                
+                // Generate new orders if needed
+                if (gameState.orders.length < 2) {
+                    generateOrders();
+                }
+                
+                updateUI();
+                updateOrdersDisplay();
+            }
+            
+            repairStation.style.display = 'none';
+            controls.lock();
+        });
+        
+        document.getElementById('closeRepair').addEventListener('click', function() {
+            repairStation.style.display = 'none';
+            controls.lock();
+        });
+    </script>
+</body>
+</html>
