@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data QR Generator</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .progress-bar {
+            position: absolute;
+            height: 4px;
+            background: #3498db;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: width 0.3s ease;
+            z-index: 1;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.active {
+            border-color: #3498db;
+            background: #3498db;
+            color: white;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        #prev-btn {
+            background: #95a5a6;
+            color: white;
+        }
+
+        #next-btn, #submit-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #qr-result {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            display: none;
+        }
+
+        #password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .developer-credit {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .btn-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Student Data Collection</h1>
+            <p>Fill out the form to generate your student QR code</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-step active">1</div>
+            <div class="progress-step">2</div>
+            <div class="progress-step">3</div>
+            <div class="progress-step">4</div>
+            <div class="progress-step">5</div>
+        </div>
+
+        <form id="student-form">
+            <!-- Personal Information Section -->
+            <div class="form-section active" id="section-personal">
+                <h2>Personal Information</h2>
+                
+                <div class="form-group">
+                    <label for="full-name">Full Name *</label>
+                    <input type="text" id="full-name" name="full-name" required>
+                    <div class="error" id="full-name-error">Please enter your full name</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roll-number">Roll Number *</label>
+                    <input type="text" id="roll-number" name="roll-number" required>
+                    <div class="error" id="roll-number-error">Please enter your roll number</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="error" id="gender-error">Please select your gender</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dob">Date of Birth *</label>
+                    <input type="date" id="dob" name="dob" required>
+                    <div class="error" id="dob-error">Please enter your date of birth</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="blood-group">Blood Group</label>
+                    <select id="blood-group" name="blood-group">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nationality">Nationality *</label>
+                    <input type="text" id="nationality" name="nationality" required>
+                    <div class="error" id="nationality-error">Please enter your nationality</div>
+                </div>
+                
+                <div class="btn-container">
+                    <div></div> <!-- Empty div for spacing -->
+                    <button type="button" id="next-btn-1">Next</button>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="form-section" id="section-contact">
+                <h2>Contact Information</h2>
+                
+                <div class="form-group">
+                    <label for="mobile">Mobile Number *</label>
+                    <input type="tel" id="mobile" name="mobile" required pattern="[0-9]{10}">
+                    <div class="error" id="mobile-error">Please enter a valid 10-digit mobile number</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                    <div class="error" id="email-error">Please enter a valid email address</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address *</label>
+                    <textarea id="address" name="address" rows="3" required></textarea>
+                    <div class="error" id="address-error">Please enter your address</div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" id="prev-btn-2">Previous</button>
+                    <button type="button" id="next-btn-2">Next</button>
+                </div>
+            </div>
+
+            <!-- Academic Information Section -->
+            <div class="form-section" id="section-academic">
+                <h2>Academic Information</h2>
+                
+                <div class="form-group">
+                    <label for="department">Department *</label>
+                    <input type="text" id="department" name="department" required>
+                    <div class="error" id="department-error">Please enter your department</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="course">Course / Degree *</label>
+                    <input type="text" id="course" name="course" required>
+                    <div class="error" id="course-error">Please enter your course/degree</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="year">Year of Study *</label>
+                    <select id="year" name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                    <div class="error" id="year-error">Please select your year of study</div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" id="prev-btn-3">Previous</button>
+                    <button type="button" id="next-btn-3">Next</button>
+                </div>
+            </div>
+
+            <!-- Family Information Section -->
+            <div class="form-section" id="section-family">
+                <h2>Family Information</h2>
+                
+                <div class="form-group">
+                    <label for="father-name">Father's Name</label>
+                    <input type="text" id="father-name" name="father-name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mother-name">Mother's Name</label>
+                    <input type="text" id="mother-name" name="mother-name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="parent-contact">Parent's Contact Number</label>
+                    <input type="tel" id="parent-contact" name="parent-contact" pattern="[0-9]{10}">
+                    <div class="error" id="parent-contact-error">Please enter a valid 10-digit mobile number</div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" id="prev-btn-4">Previous</button>
+                    <button type="button" id="next-btn-4">Next</button>
+                </div>
+            </div>
+
+            <!-- Additional Information Section -->
+            <div class="form-section" id="section-additional">
+                <h2>Additional Information</h2>
+                
+                <div class="form-group">
+                    <label for="hobbies">Hobbies</label>
+                    <textarea id="hobbies" name="hobbies" rows="2"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="skills">Skills</label>
+                    <textarea id="skills" name="skills" rows="2"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="emergency-contact">Emergency Contact</label>
+                    <input type="tel" id="emergency-contact" name="emergency-contact" pattern="[0-9]{10}">
+                    <div class="error" id="emergency-contact-error">Please enter a valid 10-digit mobile number</div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="button" id="prev-btn-5">Previous</button>
+                    <button type="submit" id="submit-btn">Generate QR Code</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="qr-result">
+            <h2>Your QR Code is Ready!</h2>
+            <div id="qrcode"></div>
+            <p>Scan this QR code to access your information</p>
+        </div>
+
+        <div class="developer-credit">
+            Developed by SANTHOSH_A
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="password-modal">
+        <div class="modal-content">
+            <h2>Enter Password to View Data</h2>
+            <div class="form-group">
+                <input type="password" id="password-input" placeholder="Enter password">
+                <div class="error" id="password-error">Incorrect password. Please try again.</div>
+            </div>
+            <button id="password-submit">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form navigation variables
+            const formSections = document.querySelectorAll('.form-section');
+            const progressSteps = document.querySelectorAll('.progress-step');
+            const progressBar = document.getElementById('progress-bar');
+            let currentSection = 0;
+            
+            // Update progress bar
+            function updateProgressBar() {
+                const percent = (currentSection / (formSections.length - 1)) * 100;
+                progressBar.style.width = percent + '%';
+                
+                progressSteps.forEach((step, index) => {
+                    if (index <= currentSection) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Navigation functions
+            function showSection(sectionIndex) {
+                formSections.forEach(section => section.classList.remove('active'));
+                formSections[sectionIndex].classList.add('active');
+                currentSection = sectionIndex;
+                updateProgressBar();
+            }
+            
+            // Next button event listeners
+            document.getElementById('next-btn-1').addEventListener('click', function() {
+                if (validatePersonalSection()) {
+                    showSection(1);
+                }
+            });
+            
+            document.getElementById('next-btn-2').addEventListener('click', function() {
+                if (validateContactSection()) {
+                    showSection(2);
+                }
+            });
+            
+            document.getElementById('next-btn-3').addEventListener('click', function() {
+                if (validateAcademicSection()) {
+                    showSection(3);
+                }
+            });
+            
+            document.getElementById('next-btn-4').addEventListener('click', function() {
+                if (validateFamilySection()) {
+                    showSection(4);
+                }
+            });
+            
+            // Previous button event listeners
+            document.getElementById('prev-btn-2').addEventListener('click', function() {
+                showSection(0);
+            });
+            
+            document.getElementById('prev-btn-3').addEventListener('click', function() {
+                showSection(1);
+            });
+            
+            document.getElementById('prev-btn-4').addEventListener('click', function() {
+                showSection(2);
+            });
+            
+            document.getElementById('prev-btn-5').addEventListener('click', function() {
+                showSection(3);
+            });
+            
+            // Form validation functions
+            function validatePersonalSection() {
+                let isValid = true;
+                
+                if (!document.getElementById('full-name').value.trim()) {
+                    document.getElementById('full-name-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('full-name-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('roll-number').value.trim()) {
+                    document.getElementById('roll-number-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('roll-number-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('gender').value) {
+                    document.getElementById('gender-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('gender-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('dob').value) {
+                    document.getElementById('dob-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('dob-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('nationality').value.trim()) {
+                    document.getElementById('nationality-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('nationality-error').style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            function validateContactSection() {
+                let isValid = true;
+                
+                const mobile = document.getElementById('mobile').value;
+                if (!mobile || !/^\d{10}$/.test(mobile)) {
+                    document.getElementById('mobile-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('mobile-error').style.display = 'none';
+                }
+                
+                const email = document.getElementById('email').value;
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    document.getElementById('email-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('email-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('address').value.trim()) {
+                    document.getElementById('address-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('address-error').style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            function validateAcademicSection() {
+                let isValid = true;
+                
+                if (!document.getElementById('department').value.trim()) {
+                    document.getElementById('department-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('department-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('course').value.trim()) {
+                    document.getElementById('course-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('course-error').style.display = 'none';
+                }
+                
+                if (!document.getElementById('year').value) {
+                    document.getElementById('year-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('year-error').style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            function validateFamilySection() {
+                let isValid = true;
+                
+                const parentContact = document.getElementById('parent-contact').value;
+                if (parentContact && !/^\d{10}$/.test(parentContact)) {
+                    document.getElementById('parent-contact-error').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('parent-contact-error').style.display = 'none';
+                }
+                
+                return isValid;
+            }
+            
+            // Form submission
+            document.getElementById('student-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validatePersonalSection() && validateContactSection() && 
+                    validateAcademicSection() && validateFamilySection()) {
+                    
+                    // Collect all form data
+                    const formData = {
+                        personal: {
+                            fullName: document.getElementById('full-name').value,
+                            rollNumber: document.getElementById('roll-number').value,
+                            gender: document.getElementById('gender').value,
+                            dob: document.getElementById('dob').value,
+                            bloodGroup: document.getElementById('blood-group').value,
+                            nationality: document.getElementById('nationality').value
+                        },
+                        contact: {
+                            mobile: document.getElementById('mobile').value,
+                            email: document.getElementById('email').value,
+                            address: document.getElementById('address').value
+                        },
+                        academic: {
+                            department: document.getElementById('department').value,
+                            course: document.getElementById('course').value,
+                            year: document.getElementById('year').value
+                        },
+                        family: {
+                            fatherName: document.getElementById('father-name').value,
+                            motherName: document.getElementById('mother-name').value,
+                            parentContact: document.getElementById('parent-contact').value
+                        },
+                        additional: {
+                            hobbies: document.getElementById('hobbies').value,
+                            skills: document.getElementById('skills').value,
+                            emergencyContact: document.getElementById('emergency-contact').value
+                        }
+                    };
+                    
+                    // Format data for QR code with password protection
+                    const formattedData = `
+Full Name: ${formData.personal.fullName}
+Roll Number: ${formData.personal.rollNumber}
+Gender: ${formData.personal.gender}
+Date of Birth: ${formData.personal.dob}
+Blood Group: ${formData.personal.bloodGroup || 'Not specified'}
+Nationality: ${formData.personal.nationality}
+Mobile Number: ${formData.contact.mobile}
+Email Address: ${formData.contact.email}
+Address: ${formData.contact.address}
+Department: ${formData.academic.department}
+Course / Degree: ${formData.academic.course}
+Year of Study: ${formData.academic.year}
+Father's Name: ${formData.family.fatherName || 'Not specified'}
+Mother's Name: ${formData.family.motherName || 'Not specified'}
+Parent's Contact: ${formData.family.parentContact || 'Not specified'}
+Hobbies: ${formData.additional.hobbies || 'Not specified'}
+Skills: ${formData.additional.skills || 'Not specified'}
+Emergency Contact: ${formData.additional.emergencyContact || 'Not specified'}
+
+This data is password protected. Password: 007124
+                    `.trim();
+                    
+                    // Generate QR code
+                    document.getElementById('qrcode').innerHTML = '';
+                    const qrcode = new QRCode(document.getElementById('qrcode'), {
+                        text: formattedData,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    // Show QR result section
+                    document.getElementById('qr-result').style.display = 'block';
+                    
+                    // Scroll to QR code
+                    document.getElementById('qr-result').scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+            
+            // Password protection for QR code data
+            document.getElementById('password-submit').addEventListener('click', function() {
+                const password = document.getElementById('password-input').value;
+                if (password === '007124') {
+                    // Password is correct - in a real application, you would show the decrypted data
+                    alert('Password correct! Data would be displayed here.');
+                    document.getElementById('password-modal').style.display = 'none';
+                } else {
+                    document.getElementById('password-error').style.display = 'block';
+                }
+            });
+            
+            // Initialize progress bar
+            updateProgressBar();
+        });
+    </script>
+</body>
+</html>
