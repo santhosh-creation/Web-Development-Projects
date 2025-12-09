@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>விவசாய கருவிகள் - Tamil Nadu Farmers' E-Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #7cb342;
+            --accent: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hind Madurai', 'Noto Sans Tamil', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .language-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .language-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            padding: 0.5rem 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .categories {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+
+        .categories a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .categories a:hover {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            width: 300px;
+        }
+
+        .search-container input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 0.5rem;
+            outline: none;
+        }
+
+        .search-container button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--dark);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1625246335525-8f3c6c2c0d6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            animation: fadeInUp 2s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #f57c00;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Tools Section */
+        .tools-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .tool-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .tool-card:hover .tool-image img {
+            transform: scale(1.1);
+        }
+
+        .tool-info {
+            padding: 1.5rem;
+        }
+
+        .tool-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .tool-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .tool-price {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .whatsapp-btn {
+            flex: 1;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+        }
+
+        .external-btn {
+            flex: 1;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .external-btn:hover {
+            background-color: #e65100;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .admin-panel h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .admin-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .footer-section p {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .categories {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .admin-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .tool-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-tractor" style="font-size: 2rem;"></i>
+                <h1>விவசாய கருவிகள் <span style="font-weight: 400;">| FarmTools</span></h1>
+            </div>
+            <div class="header-info">
+                <div class="datetime" id="datetime">புதன், ஆக 20, 2025 | 10:30:45 AM</div>
+            </div>
+            <div class="language-toggle" id="languageToggle">தமிழ் / English</div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="categories">
+                <a href="#land-prep">நிலம் தயாரித்தல்</a>
+                <a href="#sowing">விதைத்தல்</a>
+                <a href="#irrigation">பாசனம்</a>
+                <a href="#weeding">களையெடுத்தல்</a>
+                <a href="#harvesting">அறுவடை</a>
+                <a href="#modern">நவீன விவசாயம்</a>
+                <a href="#more">மேலும்...</a>
+            </div>
+            <div class="search-container">
+                <input type="text" placeholder="கருவியை தேடு (எ.கா: கலப்பை)" id="searchInput">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>தமிழ்நாடு விவசாயிகளுக்கான முழுமையான தீர்வு</h2>
+            <p>உங்களுக்கு தேவையான அனைத்து விவசாய கருவிகளும் ஒரே இடத்தில் - எளிய விலை, உயர்தர தரம்</p>
+            <a href="#tools" class="cta-button">கருவிகளை பார்க்க <i class="fas fa-arrow-down"></i></a>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section" id="tools">
+        <h2 class="section-title">பிரபலமான விவசாய கருவிகள்</h2>
+        <div class="tools-grid">
+            <!-- Tool Card 1 -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="https://images.unsplash.com/photo-1584358120485-89a6dc25de1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80" alt="Plough">
+                </div>
+                <div class="tool-info">
+                    <h3 class="tool-name">கலப்பை (Plough)</h3>
+                    <p class="tool-description">நெல் மற்றும் கரும்பு வயல்களில் முதன்மை உழவுக்கு பயன்படுத்தப்படுகிறது</p>
+                    <div class="tool-price">₹3,500 – ₹12,000</div>
+                    <div class="tool-actions">
+                        <button class="whatsapp-btn" onclick="orderOnWhatsApp('கலப்பை')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="external-btn" onclick="openExternalLink('Plough')"><i class="fas fa-shopping-cart"></i> Amazon</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool Card 2 -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="https://images.unsplash.com/photo-1625246335525-8f3c6c2c0d6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Rotavator">
+                </div>
+                <div class="tool-info">
+                    <h3 class="tool-name">ரோட்டாவேட்டர் (Rotavator)</h3>
+                    <p class="tool-description">நிலத்தை திரும்பத் திரும்ப உழுவதற்கும், மண் தயாரிப்பதற்கும்</p>
+                    <div class="tool-price">₹45,000 – ₹85,000</div>
+                    <div class="tool-actions">
+                        <button class="whatsapp-btn" onclick="orderOnWhatsApp('ரோட்டாவேட்டர்')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="external-btn" onclick="openExternalLink('Rotavator')"><i class="fas fa-shopping-cart"></i> Flipkart</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tool Card 3 -->
+            <div class="tool-card">
+                <div class="tool-image">
+                    <img src="https://images.unsplash.com/photo-1633886038250-83b7ec6b235c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80" alt="Drip Irrigation">
+                </div>
+                <div class="tool-info">
+                    <h3 class="tool-name">டிரிப் பாசன கிட் (Drip Irrigation Kit)</h3>
+                    <p class="tool-description">தண்ணீர் சேமிப்பிற்கான திறனான பாசன முறை</p>
+                    <div class="tool-price">₹2,500 – ₹15,000</div>
+                    <div class="tool-actions">
+                        <button class="whatsapp-btn" onclick="orderOnWhatsApp('டிரிப் பாசன கிட்')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="external-btn" onclick="openExternalLink('Drip Irrigation')"><i class="fas fa-shopping-cart"></i> Amazon</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel (Hidden by default) -->
+    <section class="admin-panel" id="adminPanel">
+        <h3>Admin Panel - Tool Management</h3>
+        <form class="admin-form">
+            <div class="form-group">
+                <label for="toolName">Tool Name</label>
+                <input type="text" id="toolName" placeholder="Enter tool name">
+            </div>
+            <div class="form-group">
+                <label for="toolCategory">Category</label>
+                <select id="toolCategory">
+                    <option value="">Select category</option>
+                    <option value="land-prep">Land Preparation</option>
+                    <option value="sowing">Sowing & Planting</option>
+                    <option value="irrigation">Irrigation</option>
+                    <option value="weeding">Weeding</option>
+                    <option value="harvesting">Harvesting</option>
+                    <option value="modern">Modern Farming</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="toolPrice">Price Range (₹)</label>
+                <input type="text" id="toolPrice" placeholder="e.g., 3,500 - 12,000">
+            </div>
+            <div class="form-group">
+                <label for="toolImage">Image URL</label>
+                <input type="text" id="toolImage" placeholder="Enter image URL">
+            </div>
+            <div class="form-group full-width">
+                <label for="toolDescription">Description</label>
+                <textarea id="toolDescription" placeholder="Enter tool description"></textarea>
+            </div>
+            <div class="form-group full-width">
+                <button type="button" class="submit-btn" onclick="addNewTool()">Add Tool</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>விவசாய கருவிகள்</h3>
+                <p>தமிழ்நாடு விவசாயிகளுக்கு தரமான கருவிகள் மற்றும் சேவைகளை வழங்குவதே எங்கள் நோக்கம்</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>தொடர்பு கொள்ள</h3>
+                <p><i class="fas fa-phone"></i> +91 9023749362</p>
+                <p><i class="fas fa-envelope"></i> support@farmtoolstn.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> 123 விவசாய நகர், கோயம்புத்தூர், தமிழ்நாடு</p>
+            </div>
+            <div class="footer-section">
+                <h3>பயனுள்ள இணைப்புகள்</h3>
+                <p><a href="#">விவசாயக் கருவிகளின் வகைகள்</a></p>
+                <p><a href="#">விலைப் பட்டியல்</a></p>
+                <p><a href="#">ஆர்டர் செய்வது எப்படி</a></p>
+                <p><a href="#" onclick="showAdminPanel()">Admin Login</a></p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Developed by SANTHOSH_A | &copy; 2025 விவசாய கருவிகள். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const date = now.toLocaleDateString('ta-IN', options);
+            const time = now.toLocaleTimeString('ta-IN');
+            document.getElementById('datetime').textContent = `${date} | ${time}`;
+        }
+        
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+        
+        // Language toggle functionality
+        document.getElementById('languageToggle').addEventListener('click', function() {
+            const currentText = this.textContent;
+            if (currentText.includes('தமிழ்')) {
+                this.textContent = 'English / தமிழ்';
+                // Here you would typically update all text on the page to English
+                document.querySelector('.logo h1').innerHTML = 'விவசாய கருவிகள் <span style="font-weight: 400;">| FarmTools</span>';
+            } else {
+                this.textContent = 'தமிழ் / English';
+                // Here you would typically update all text on the page to Tamil
+                document.querySelector('.logo h1').innerHTML = 'FarmTools <span style="font-weight: 400;">| விவசாய கருவிகள்</span>';
+            }
+        });
+        
+        // WhatsApp ordering function
+        function orderOnWhatsApp(toolName) {
+            const phoneNumber = '9023749362';
+            const message = `வணக்கம், நான் ${toolName} வாங்க விரும்புகிறேன். மேலும் விபரங்கள் தேவை.`;
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+        
+        // External link function
+        function openExternalLink(toolName) {
+            // In a real implementation, this would open the specific product page
+            window.open(`https://www.amazon.in/s?k=${encodeURIComponent(toolName)}+agricultural+tools`, '_blank');
+        }
+        
+        // Admin panel functionality
+        function showAdminPanel() {
+            const password = prompt('Admin Password:');
+            if (password === '007124') {
+                document.getElementById('adminPanel').style.display = 'block';
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+        
+        // Add new tool function
+        function addNewTool() {
+            alert('Tool added successfully! In a real implementation, this would save to a database.');
+            // Clear the form
+            document.getElementById('toolName').value = '';
+            document.getElementById('toolCategory').value = '';
+            document.getElementById('toolPrice').value = '';
+            document.getElementById('toolImage').value = '';
+            document.getElementById('toolDescription').value = '';
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const searchTerm = this.value.toLowerCase();
+                alert(`Searching for: ${searchTerm}. In a real implementation, this would filter the tools.`);
+            }
+        });
+    </script>
+</body>
+</html>
